@@ -27,6 +27,7 @@ Route::get('/program/agriculture', [ProgramController::class, 'agriculture'])->n
 Route::get('/program/agroforestry', [ProgramController::class, 'agroforestry'])->name('agroforestry');
 Route::get('/program/peternakan', [ProgramController::class, 'peternakan'])->name('peternakan');
 Route::get('/program/umkm', [ProgramController::class, 'umkm'])->name('umkm');
+Route::get('/program/{program}/{city}', [ProgramController::class, 'activity'])->name('program.activity');
 
 Route::get('/blog', [BlogController::class, 'index'])->name('blog');
 

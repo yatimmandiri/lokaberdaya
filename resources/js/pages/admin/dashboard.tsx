@@ -116,13 +116,13 @@ export default function AdminDashboard({ stats, recentMessages }: Props) {
                                 className="group relative overflow-hidden rounded-2xl border border-gray-200/80 bg-white p-5 shadow-sm ring-1 ring-transparent transition-all duration-200 hover:-translate-y-0.5 hover:border-[#cfdcae] hover:shadow-lg hover:ring-[#eff5da]"
                             >
                                 {/* subtle accent blob */}
-                                <div className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-[#eff5da] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                <div className="pointer-events-none absolute -top-6 -right-6 h-20 w-20 rounded-full bg-[#eff5da] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
                                 <div className="relative flex items-start justify-between">
                                     <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#eff5da] text-[#4b552a] transition-colors duration-200 group-hover:bg-[#4b552a] group-hover:text-[#eff5da]">
                                         <card.icon className="h-5 w-5" />
                                     </div>
-                                    <ArrowUpRight className="h-4 w-4 text-gray-300 transition-all duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#4b552a]" />
+                                    <ArrowUpRight className="h-4 w-4 text-gray-300 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[#4b552a]" />
                                 </div>
 
                                 <p className="relative mt-5 text-3xl font-bold tracking-tight text-gray-900">
@@ -147,7 +147,8 @@ export default function AdminDashboard({ stats, recentMessages }: Props) {
                                         Pesan Terbaru
                                     </h2>
                                     <p className="text-xs text-gray-400">
-                                        {recentMessages.length} pesan ditampilkan
+                                        {recentMessages.length} pesan
+                                        ditampilkan
                                     </p>
                                 </div>
                             </div>
@@ -183,7 +184,7 @@ export default function AdminDashboard({ stats, recentMessages }: Props) {
                                                         'Tanpa subjek'}
                                                 </span>
                                                 {!message.is_read && (
-                                                    <span className="shrink-0 rounded-full bg-[#4b552a] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                                                    <span className="shrink-0 rounded-full bg-[#4b552a] px-2 py-0.5 text-[10px] font-bold tracking-wide text-white uppercase">
                                                         Baru
                                                     </span>
                                                 )}

@@ -1,5 +1,14 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ChevronDown, MapPin, Pencil, Plus, Search, Trash2, Users, X } from 'lucide-react';
+import {
+    ChevronDown,
+    MapPin,
+    Pencil,
+    Plus,
+    Search,
+    Trash2,
+    Users,
+    X,
+} from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import type { UmkmRegion } from '@/types/content';
@@ -8,7 +17,12 @@ type Props = {
     regions: UmkmRegion[];
 };
 
-type SortFilter = 'default' | 'az' | 'za' | 'most_beneficiaries' | 'most_images';
+type SortFilter =
+    | 'default'
+    | 'az'
+    | 'za'
+    | 'most_beneficiaries'
+    | 'most_images';
 
 export default function AdminUmkm({ regions }: Props) {
     const [search, setSearch] = useState('');
@@ -34,7 +48,9 @@ export default function AdminUmkm({ regions }: Props) {
 
         let result = regions.filter((r) => {
             if (!q) return true;
-            const haystack = [r.city, r.description ?? ''].join(' ').toLowerCase();
+            const haystack = [r.city, r.description ?? '']
+                .join(' ')
+                .toLowerCase();
             return haystack.includes(q);
         });
 
@@ -43,9 +59,14 @@ export default function AdminUmkm({ regions }: Props) {
         } else if (sortBy === 'za') {
             result.sort((a, b) => b.city.localeCompare(a.city));
         } else if (sortBy === 'most_beneficiaries') {
-            result.sort((a, b) => (b.beneficiaries_count ?? 0) - (a.beneficiaries_count ?? 0));
+            result.sort(
+                (a, b) =>
+                    (b.beneficiaries_count ?? 0) - (a.beneficiaries_count ?? 0),
+            );
         } else if (sortBy === 'most_images') {
-            result.sort((a, b) => (b.images_count ?? 0) - (a.images_count ?? 0));
+            result.sort(
+                (a, b) => (b.images_count ?? 0) - (a.images_count ?? 0),
+            );
         } else {
             // Default: urutkan berdasarkan sort_order
             result.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
@@ -54,7 +75,9 @@ export default function AdminUmkm({ regions }: Props) {
         return result;
     }, [regions, search, sortBy]);
 
-    const visible = showAll ? filteredAndSorted : filteredAndSorted.slice(0, perPage);
+    const visible = showAll
+        ? filteredAndSorted
+        : filteredAndSorted.slice(0, perPage);
     const hasActiveFilter = search.trim() !== '' || sortBy !== 'default';
 
     const resetFilters = () => {
@@ -90,19 +113,19 @@ export default function AdminUmkm({ regions }: Props) {
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
                         {/* Search */}
                         <div className="relative flex-1 lg:min-w-[240px]">
-                            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
                             <input
                                 type="text"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Cari nama kota atau deskripsi wilayah..."
-                                className="h-10 w-full rounded-lg border border-gray-300 bg-white pl-9 pr-9 text-sm text-gray-900 outline-none transition focus:border-[#4b552a] focus:ring-1 focus:ring-[#4b552a]"
+                                className="h-10 w-full rounded-lg border border-gray-300 bg-white pr-9 pl-9 text-sm text-gray-900 transition outline-none focus:border-[#4b552a] focus:ring-1 focus:ring-[#4b552a]"
                             />
                             {search && (
                                 <button
                                     type="button"
                                     onClick={() => setSearch('')}
-                                    className="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+                                    className="absolute top-1/2 right-2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
                                     aria-label="Hapus pencarian"
                                 >
                                     <X className="h-4 w-4" />
@@ -114,16 +137,22 @@ export default function AdminUmkm({ regions }: Props) {
                         <div className="relative w-full sm:w-auto">
                             <select
                                 value={sortBy}
-                                onChange={(e) => setSortBy(e.target.value as SortFilter)}
-                                className="h-10 w-full appearance-none rounded-lg border border-gray-300 bg-white pl-4 pr-10 text-sm text-gray-700 outline-none transition hover:bg-gray-50 focus:border-[#4b552a] focus:ring-1 focus:ring-[#4b552a] sm:min-w-[180px]"
+                                onChange={(e) =>
+                                    setSortBy(e.target.value as SortFilter)
+                                }
+                                className="h-10 w-full appearance-none rounded-lg border border-gray-300 bg-white pr-10 pl-4 text-sm text-gray-700 transition outline-none hover:bg-gray-50 focus:border-[#4b552a] focus:ring-1 focus:ring-[#4b552a] sm:min-w-[180px]"
                             >
                                 <option value="default">Urutan Default</option>
                                 <option value="az">Nama Kota (A-Z)</option>
                                 <option value="za">Nama Kota (Z-A)</option>
-                                <option value="most_beneficiaries">Penerima Terbanyak</option>
-                                <option value="most_images">Gambar Terbanyak</option>
+                                <option value="most_beneficiaries">
+                                    Penerima Terbanyak
+                                </option>
+                                <option value="most_images">
+                                    Gambar Terbanyak
+                                </option>
                             </select>
-                            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+                            <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
                         </div>
 
                         {/* Reset */}
@@ -131,7 +160,7 @@ export default function AdminUmkm({ regions }: Props) {
                             <button
                                 type="button"
                                 onClick={resetFilters}
-                                className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 w-full sm:w-auto"
+                                className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 sm:w-auto"
                             >
                                 <X className="h-4 w-4" /> Reset
                             </button>
@@ -140,7 +169,8 @@ export default function AdminUmkm({ regions }: Props) {
 
                     {hasActiveFilter && (
                         <p className="mt-3 text-xs text-gray-500">
-                            Menampilkan {filteredAndSorted.length} dari {regions.length} wilayah.
+                            Menampilkan {filteredAndSorted.length} dari{' '}
+                            {regions.length} wilayah.
                         </p>
                     )}
                 </div>
@@ -175,7 +205,8 @@ export default function AdminUmkm({ regions }: Props) {
                                                 href={`/admin/umkm/${region.id}/edit`}
                                                 className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
                                             >
-                                                <Pencil className="h-4 w-4" /> Edit
+                                                <Pencil className="h-4 w-4" />{' '}
+                                                Edit
                                             </Link>
                                             <Button
                                                 type="button"
@@ -196,7 +227,8 @@ export default function AdminUmkm({ regions }: Props) {
                                     <div className="mt-4 flex gap-5 text-sm text-gray-500">
                                         <span className="flex items-center gap-1">
                                             <Users className="h-4 w-4" />
-                                            {region.beneficiaries_count ?? 0}{' '}
+                                            {region.beneficiaries_count ??
+                                                0}{' '}
                                             penerima manfaat
                                         </span>
                                         <span>
@@ -219,17 +251,19 @@ export default function AdminUmkm({ regions }: Props) {
                                         <select
                                             value={perPage}
                                             onChange={(e) => {
-                                                setPerPage(Number(e.target.value));
+                                                setPerPage(
+                                                    Number(e.target.value),
+                                                );
                                                 setShowAll(false);
                                             }}
-                                            className="h-9 appearance-none rounded-lg border border-gray-300 bg-white pl-3 pr-8 text-sm text-gray-700 outline-none transition hover:bg-gray-50 focus:border-[#4b552a] focus:ring-1 focus:ring-[#4b552a]"
+                                            className="h-9 appearance-none rounded-lg border border-gray-300 bg-white pr-8 pl-3 text-sm text-gray-700 transition outline-none hover:bg-gray-50 focus:border-[#4b552a] focus:ring-1 focus:ring-[#4b552a]"
                                         >
                                             <option value={6}>6 / hal</option>
                                             <option value={12}>12 / hal</option>
                                             <option value={24}>24 / hal</option>
                                             <option value={48}>48 / hal</option>
                                         </select>
-                                        <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+                                        <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
                                     </div>
                                     <button
                                         type="button"

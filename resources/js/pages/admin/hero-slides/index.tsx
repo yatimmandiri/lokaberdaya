@@ -25,15 +25,7 @@ export default function AdminHeroSlides({ slides }: Props) {
             <Head title="Slide Hero" />
 
             <div className="p-4 md:p-6">
-                <div
-                    className="
-                        [&_input:not([type='checkbox']):not([type='file'])]:text-gray-900
-                        [&_input:not([type='checkbox']):not([type='file'])]:placeholder:text-gray-400
-                        [&_textarea]:text-gray-900
-                        [&_textarea]:placeholder:text-gray-400
-                        [&_select]:text-gray-900
-                    "
-                >
+                <div className="[&_input:not([type='checkbox']):not([type='file'])]:text-gray-900 [&_input:not([type='checkbox']):not([type='file'])]:placeholder:text-gray-400 [&_select]:text-gray-900 [&_textarea]:text-gray-900 [&_textarea]:placeholder:text-gray-400">
                     <CrudManager
                         title="Slide Hero"
                         description="Gambar latar yang tampil bergantian di bagian atas landing page."

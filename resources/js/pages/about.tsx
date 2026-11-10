@@ -1,9 +1,16 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import type { CoreValue } from '@/types/content';
-import { Leaf, Heart, TrendingUp, ArrowRight, ArrowUpRight, Quote } from 'lucide-react';
+import {
+    Leaf,
+    Heart,
+    TrendingUp,
+    ArrowRight,
+    ArrowUpRight,
+    Quote,
+} from 'lucide-react';
 
 /* ---------- HOOKS ---------- */
 function useReveal<T extends HTMLElement = HTMLDivElement>(threshold = 0.15) {
@@ -13,7 +20,12 @@ function useReveal<T extends HTMLElement = HTMLDivElement>(threshold = 0.15) {
         const el = ref.current;
         if (!el) return;
         const obs = new IntersectionObserver(
-            ([e]) => { if (e.isIntersecting) { setVisible(true); obs.unobserve(el); } },
+            ([e]) => {
+                if (e.isIntersecting) {
+                    setVisible(true);
+                    obs.unobserve(el);
+                }
+            },
             { threshold },
         );
         obs.observe(el);
@@ -35,26 +47,47 @@ function useScrollY() {
 function useMouse() {
     const [m, setM] = useState({ x: 0.5, y: 0.5 });
     useEffect(() => {
-        const on = (e: MouseEvent) => setM({ x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight });
+        const on = (e: MouseEvent) =>
+            setM({
+                x: e.clientX / window.innerWidth,
+                y: e.clientY / window.innerHeight,
+            });
         window.addEventListener('mousemove', on, { passive: true });
         return () => window.removeEventListener('mousemove', on);
     }, []);
     return m;
 }
 
-const valueIcons = { leaf: Leaf, heart: Heart, 'trending-up': TrendingUp } as const;
+const valueIcons = {
+    leaf: Leaf,
+    heart: Heart,
+    'trending-up': TrendingUp,
+} as const;
 
 type Props = { coreValues: CoreValue[]; storyParagraphs: string[] };
 
 /* ---------- SPLIT WORD ---------- */
-function SplitWords({ text, delay = 0, className = '' }: { text: string; delay?: number; className?: string }) {
+function SplitWords({
+    text,
+    delay = 0,
+    className = '',
+}: {
+    text: string;
+    delay?: number;
+    className?: string;
+}) {
     return (
         <span className={className} aria-label={text}>
             {text.split(' ').map((w, i) => (
-                <span key={i} className="inline-block overflow-hidden align-bottom">
+                <span
+                    key={i}
+                    className="inline-block overflow-hidden align-bottom"
+                >
                     <span
                         className="inline-block will-change-transform"
-                        style={{ animation: `wordUp .9s cubic-bezier(.22,.61,.36,1) ${delay + i * 0.045}s both` }}
+                        style={{
+                            animation: `wordUp .9s cubic-bezier(.22,.61,.36,1) ${delay + i * 0.045}s both`,
+                        }}
                     >
                         {w}&nbsp;
                     </span>
@@ -87,7 +120,9 @@ export default function About({ coreValues, storyParagraphs }: Props) {
             (entries) => {
                 entries.forEach((e) => {
                     if (e.isIntersecting) {
-                        const i = paraRefs.current.indexOf(e.target as HTMLParagraphElement);
+                        const i = paraRefs.current.indexOf(
+                            e.target as HTMLParagraphElement,
+                        );
                         if (i >= 0) setActivePara(i);
                     }
                 });
@@ -129,12 +164,15 @@ export default function About({ coreValues, storyParagraphs }: Props) {
                 />
                 <div
                     className="pointer-events-none absolute inset-0 z-0 bg-[#f7ffda]/60"
-                    style={{ transform: `translateY(${heroParallax}px)`, opacity: heroFade }}
+                    style={{
+                        transform: `translateY(${heroParallax}px)`,
+                        opacity: heroFade,
+                    }}
                 />
 
                 {/* Oversized backdrop word */}
                 <div
-                    className="pointer-events-none absolute inset-x-0 top-16 z-0 text-center leading-none font-black tracking-tighter text-[#4b552a]/[0.04] select-none"
+                    className="pointer-events-none absolute inset-x-0 top-16 z-0 text-center leading-none font-black tracking-tighter text-[#4b552a]/4 select-none"
                     style={{ fontSize: 'clamp(6rem, 22vw, 22rem)' }}
                 >
                     BERCERITA
@@ -150,17 +188,26 @@ export default function About({ coreValues, storyParagraphs }: Props) {
                             >
                                 <span
                                     className="h-px w-10 origin-left bg-[#4b552a]"
-                                    style={{ animation: 'drawLine 1s .2s cubic-bezier(.22,.61,.36,1) both' }}
+                                    style={{
+                                        animation:
+                                            'drawLine 1s .2s cubic-bezier(.22,.61,.36,1) both',
+                                    }}
                                 />
-                                {site.about_page_badge ?? 'Lebih dari 30 Tahun Berbakti'}
+                                {site.about_page_badge ??
+                                    'Lebih dari 30 Tahun Berbakti'}
                             </div>
 
                             <h1 className="mb-8 text-[clamp(2.25rem,5.5vw,4.75rem)] leading-[1.02] font-bold tracking-tight text-[#4b552a]">
-                                <SplitWords text={site.about_page_title ?? 'Menggali Potensi Lokal'} />
+                                <SplitWords
+                                    text={
+                                        site.about_page_title ??
+                                        'Menggali Potensi Lokal'
+                                    }
+                                />
                                 <SplitWords
                                     text="Untuk Kemajuan Sosial"
                                     delay={0.35}
-                                    className="block italic text-[#9c8e4d]"
+                                    className="block text-[#9c8e4d] italic"
                                 />
                             </h1>
 
@@ -172,13 +219,19 @@ export default function About({ coreValues, storyParagraphs }: Props) {
                                     'Loka Berdaya Amerta hadir sebagai respons atas kebutuhan akan perubahan sosial yang inklusif, berkelanjutan, dan berbasis potensi lokal.'}
                             </p>
 
-                            <div className="mt-10 flex flex-wrap items-center gap-6" style={{ animation: 'fadeUp 1s 1s both' }}>
+                            <div
+                                className="mt-10 flex flex-wrap items-center gap-6"
+                                style={{ animation: 'fadeUp 1s 1s both' }}
+                            >
                                 <Link
                                     href="/kontak"
                                     className="group inline-flex items-center gap-3 rounded-full bg-[#4b552a] px-7 py-3.5 text-sm font-bold text-white transition-colors hover:bg-[#3a4220]"
                                 >
                                     Bergabung Bersama Kami
-                                    <ArrowUpRight size={18} className="transition-transform group-hover:rotate-45" />
+                                    <ArrowUpRight
+                                        size={18}
+                                        className="transition-transform group-hover:rotate-45"
+                                    />
                                 </Link>
                                 <a
                                     href="#cerita"
@@ -187,7 +240,10 @@ export default function About({ coreValues, storyParagraphs }: Props) {
                                     <span className="border-b border-[#4b552a]/30 pb-0.5 transition group-hover:border-[#4b552a]">
                                         Baca cerita kami
                                     </span>
-                                    <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+                                    <ArrowRight
+                                        size={16}
+                                        className="transition-transform group-hover:translate-x-1"
+                                    />
                                 </a>
                             </div>
                         </div>
@@ -201,14 +257,22 @@ export default function About({ coreValues, storyParagraphs }: Props) {
                                 }}
                             >
                                 <img
-                                    src={site.about_page_image ?? '/images/halamantentang.webp'}
+                                    src={
+                                        site.about_page_image ??
+                                        '/images/halamantentang.webp'
+                                    }
                                     alt="Tentang Loka Berdaya Amerta"
-                                    className="h-[420px] w-full object-cover md:h-[540px]"
-                                    style={{ animation: 'fadeUp 1.1s .4s cubic-bezier(.22,.61,.36,1) both' }}
+                                    className="h-105 w-full object-cover md:h-135"
+                                    style={{
+                                        animation:
+                                            'fadeUp 1.1s .4s cubic-bezier(.22,.61,.36,1) both',
+                                    }}
                                 />
                                 {/* Floating badge */}
                                 <div className="absolute right-4 bottom-4 rounded-2xl bg-white/90 px-5 py-4 shadow-lg backdrop-blur">
-                                    <div className="text-[10px] font-bold tracking-widest text-[#9c8e4d] uppercase">Sejak</div>
+                                    <div className="text-[10px] font-bold tracking-widest text-[#9c8e4d] uppercase">
+                                        Sejak
+                                    </div>
                                     <div className="text-2xl font-bold text-[#4b552a] tabular-nums">
                                         {site.about_years ?? '1994'}
                                     </div>
@@ -243,20 +307,38 @@ export default function About({ coreValues, storyParagraphs }: Props) {
                                     {storyParagraphs.map((_, i) => (
                                         <button
                                             key={i}
-                                            onClick={() => paraRefs.current[i]?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                                            onClick={() =>
+                                                paraRefs.current[
+                                                    i
+                                                ]?.scrollIntoView({
+                                                    behavior: 'smooth',
+                                                    block: 'center',
+                                                })
+                                            }
                                             className="group flex items-center gap-3 text-left"
                                             aria-label={`Bagian ${i + 1}`}
                                         >
                                             <span
                                                 className="h-px transition-all duration-300"
                                                 style={{
-                                                    width: i === activePara ? 28 : 14,
-                                                    background: i === activePara ? '#4b552a' : '#d1d5db',
+                                                    width:
+                                                        i === activePara
+                                                            ? 28
+                                                            : 14,
+                                                    background:
+                                                        i === activePara
+                                                            ? '#4b552a'
+                                                            : '#d1d5db',
                                                 }}
                                             />
                                             <span
-                                                className="text-[11px] font-mono transition-colors"
-                                                style={{ color: i === activePara ? '#4b552a' : '#9ca3af' }}
+                                                className="font-mono text-[11px] transition-colors"
+                                                style={{
+                                                    color:
+                                                        i === activePara
+                                                            ? '#4b552a'
+                                                            : '#9ca3af',
+                                                }}
                                             >
                                                 {String(i + 1).padStart(2, '0')}
                                             </span>
@@ -281,11 +363,20 @@ export default function About({ coreValues, storyParagraphs }: Props) {
                                 {storyParagraphs.map((paragraph, i) => (
                                     <p
                                         key={i}
-                                        ref={(el) => { paraRefs.current[i] = el; }}
+                                        ref={(el) => {
+                                            paraRefs.current[i] = el;
+                                        }}
                                         className="story-para text-base leading-[1.8] md:text-lg"
                                         style={{
-                                            opacity: storyVis ? (i === activePara ? 1 : 0.55) : 0,
-                                            color: i === activePara ? '#1f2937' : '#6b7280',
+                                            opacity: storyVis
+                                                ? i === activePara
+                                                    ? 1
+                                                    : 0.55
+                                                : 0,
+                                            color:
+                                                i === activePara
+                                                    ? '#1f2937'
+                                                    : '#6b7280',
                                         }}
                                     >
                                         {paragraph}
@@ -298,7 +389,10 @@ export default function About({ coreValues, storyParagraphs }: Props) {
             </section>
 
             {/* ============ NILAI-NILAI ============ */}
-            <section ref={valuesRef} className="relative overflow-hidden bg-[#f7ffda] py-20 md:py-28">
+            <section
+                ref={valuesRef}
+                className="relative overflow-hidden bg-[#f7ffda] py-20 md:py-28"
+            >
                 {/* subtle grid pattern */}
                 <div
                     className="pointer-events-none absolute inset-0 opacity-[0.04]"
@@ -318,7 +412,8 @@ export default function About({ coreValues, storyParagraphs }: Props) {
                             Nilai Perjuangan Kami
                         </h2>
                         <p className="mt-4 max-w-lg text-base text-gray-600">
-                            Pondasi dari setiap langkah dan keputusan yang kami ambil untuk masyarakat.
+                            Pondasi dari setiap langkah dan keputusan yang kami
+                            ambil untuk masyarakat.
                         </p>
                     </div>
 
@@ -327,27 +422,38 @@ export default function About({ coreValues, storyParagraphs }: Props) {
                         <div className="md:col-span-7">
                             <div className="divide-y divide-[#4b552a]/15 border-y border-[#4b552a]/15">
                                 {coreValues.map((value, i) => {
-                                    const Icon = valueIcons[value.icon as keyof typeof valueIcons] ?? Leaf;
+                                    const Icon =
+                                        valueIcons[
+                                            value.icon as keyof typeof valueIcons
+                                        ] ?? Leaf;
                                     return (
                                         <div
                                             key={value.id}
                                             className="value-row group relative flex gap-6 px-4 py-7"
                                             style={{
                                                 opacity: valuesVis ? 1 : 0,
-                                                transform: valuesVis ? 'none' : 'translateY(20px)',
+                                                transform: valuesVis
+                                                    ? 'none'
+                                                    : 'translateY(20px)',
                                                 transition: `opacity .7s ${i * 0.1}s ease, transform .7s ${i * 0.1}s cubic-bezier(.22,.61,.36,1)`,
                                             }}
                                         >
                                             <div className="value-icon flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-[#4b552a] shadow-sm transition-transform duration-400">
-                                                <Icon size={22} strokeWidth={1.75} />
+                                                <Icon
+                                                    size={22}
+                                                    strokeWidth={1.75}
+                                                />
                                             </div>
                                             <div className="flex-1">
                                                 <div className="mb-1 flex items-baseline justify-between gap-4">
                                                     <h3 className="value-title text-lg font-bold text-gray-900 transition-colors">
                                                         {value.title}
                                                     </h3>
-                                                    <span className="text-[11px] font-mono text-[#4b552a]/40">
-                                                        {String(i + 1).padStart(2, '0')}
+                                                    <span className="font-mono text-[11px] text-[#4b552a]/40">
+                                                        {String(i + 1).padStart(
+                                                            2,
+                                                            '0',
+                                                        )}
                                                     </span>
                                                 </div>
                                                 <p className="text-sm leading-relaxed text-gray-600">
@@ -370,12 +476,17 @@ export default function About({ coreValues, storyParagraphs }: Props) {
                                 <div className="relative w-full">
                                     <div className="absolute inset-0 scale-90 rounded-full bg-[#eff5da] blur-2xl" />
                                     <img
-                                        src={site.about_values_image ?? '/images/bgtentang.webp'}
+                                        src={
+                                            site.about_values_image ??
+                                            '/images/bgtentang.webp'
+                                        }
                                         alt="Nilai Loka Berdaya Amerta"
                                         className="animate-floaty relative z-10 w-full object-contain"
                                         style={{
-                                            maskImage: 'radial-gradient(circle at center, black 55%, transparent 88%)',
-                                            WebkitMaskImage: 'radial-gradient(circle at center, black 55%, transparent 88%)',
+                                            maskImage:
+                                                'radial-gradient(circle at center, black 55%, transparent 88%)',
+                                            WebkitMaskImage:
+                                                'radial-gradient(circle at center, black 55%, transparent 88%)',
                                         }}
                                     />
                                 </div>
@@ -388,13 +499,14 @@ export default function About({ coreValues, storyParagraphs }: Props) {
             {/* ============ CTA ============ */}
             <section className="bg-white py-20 md:py-24">
                 <div className="container mx-auto px-6 md:px-12">
-                    <div className="flex flex-col items-start justify-between gap-8 rounded-[2rem] bg-[#4b552a] px-8 py-12 text-white md:flex-row md:items-center md:px-14 md:py-16">
+                    <div className="flex flex-col items-start justify-between gap-8 rounded-4xl bg-[#4b552a] px-8 py-12 text-white md:flex-row md:items-center md:px-14 md:py-16">
                         <div>
                             <h2 className="max-w-md text-2xl leading-tight font-bold md:text-3xl">
                                 Siap tumbuh bersama kami?
                             </h2>
                             <p className="mt-2 max-w-md text-sm text-[#f7ffda]/70">
-                                Bergabunglah dalam program pemberdayaan yang berdampak.
+                                Bergabunglah dalam program pemberdayaan yang
+                                berdampak.
                             </p>
                         </div>
                         <Link
@@ -402,7 +514,10 @@ export default function About({ coreValues, storyParagraphs }: Props) {
                             className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-[#f7ffda] px-6 py-3 text-sm font-bold text-[#4b552a] transition-colors hover:bg-white"
                         >
                             Hubungi Kami
-                            <ArrowUpRight size={16} className="transition-transform group-hover:rotate-45" />
+                            <ArrowUpRight
+                                size={16}
+                                className="transition-transform group-hover:rotate-45"
+                            />
                         </Link>
                     </div>
                 </div>

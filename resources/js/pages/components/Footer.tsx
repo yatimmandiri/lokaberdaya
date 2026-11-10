@@ -161,7 +161,6 @@ export default function Footer() {
                 <div className="container mx-auto px-6 md:px-12">
                     {/* Grid diubah agar proporsinya lebih rapi (4 : 2 : 2 : 3) */}
                     <div className="mb-12 grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-12">
-                        
                         {/* Kolom 1: Logo & Deskripsi (Lebih Lebar) */}
                         <div className="lg:col-span-4">
                             <div className="flex items-center">
@@ -241,7 +240,7 @@ export default function Footer() {
                                             className="footer-icon mt-1 shrink-0 text-[#f7ffda]"
                                             size={20}
                                         />
-                                        <p className="text-gray-300 text-sm leading-relaxed">
+                                        <p className="text-sm leading-relaxed text-gray-300">
                                             {item.text}
                                         </p>
                                     </div>
@@ -253,7 +252,8 @@ export default function Footer() {
                     {/* Garis Bawah & Copyright */}
                     <div className="footer-animate footer-animate--up footer-animate--delay-6 flex flex-col items-center justify-between gap-4 border-t border-white/20 pt-8 md:flex-row">
                         <p className="text-sm text-gray-400">
-                            © {new Date().getFullYear()} {siteName}. All rights reserved.
+                            © {new Date().getFullYear()} {siteName}. All rights
+                            reserved.
                         </p>
                         <div className="flex gap-4 text-sm text-gray-400">
                             <Link

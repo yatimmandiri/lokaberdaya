@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import type { Post, PostCategory } from '@/types/content';
@@ -13,7 +13,12 @@ function useReveal<T extends HTMLElement = HTMLDivElement>(threshold = 0.1) {
         const el = ref.current;
         if (!el) return;
         const obs = new IntersectionObserver(
-            ([e]) => { if (e.isIntersecting) { setVisible(true); obs.unobserve(el); } },
+            ([e]) => {
+                if (e.isIntersecting) {
+                    setVisible(true);
+                    obs.unobserve(el);
+                }
+            },
             { threshold },
         );
         obs.observe(el);
@@ -22,13 +27,19 @@ function useReveal<T extends HTMLElement = HTMLDivElement>(threshold = 0.1) {
     return [ref, visible] as const;
 }
 
-function formatDate(value: string | null, variant: 'short' | 'long' = 'long'): string {
+function formatDate(
+    value: string | null,
+    variant: 'short' | 'long' = 'long',
+): string {
     if (!value) return '';
     const d = new Date(value);
     if (Number.isNaN(d.getTime())) return value;
-    return d.toLocaleDateString('id-ID', variant === 'short'
-        ? { day: '2-digit', month: 'short', year: 'numeric' }
-        : { day: 'numeric', month: 'long', year: 'numeric' });
+    return d.toLocaleDateString(
+        'id-ID',
+        variant === 'short'
+            ? { day: '2-digit', month: 'short', year: 'numeric' }
+            : { day: 'numeric', month: 'long', year: 'numeric' },
+    );
 }
 
 function readingTime(text: string | null | undefined): string {
@@ -41,7 +52,6 @@ function readingTime(text: string | null | undefined): string {
 type Props = { posts: Post[]; categories: PostCategory[] };
 
 export default function Blog({ posts, categories }: Props) {
-    const site = usePage().props.site ?? {};
     const [activeCategory, setActiveCategory] = useState<number | 'all'>('all');
     const [query, setQuery] = useState('');
     const [searchOpen, setSearchOpen] = useState(false);
@@ -52,24 +62,31 @@ export default function Blog({ posts, categories }: Props) {
     /* Filtered list */
     const filtered = useMemo(() => {
         let r = posts;
-        if (activeCategory !== 'all') r = r.filter((p) => p.post_category_id === activeCategory);
+        if (activeCategory !== 'all')
+            r = r.filter((p) => p.post_category_id === activeCategory);
         if (query.trim()) {
             const q = query.toLowerCase();
-            r = r.filter((p) =>
-                p.title.toLowerCase().includes(q) ||
-                (p.excerpt ?? '').toLowerCase().includes(q),
+            r = r.filter(
+                (p) =>
+                    p.title.toLowerCase().includes(q) ||
+                    (p.excerpt ?? '').toLowerCase().includes(q),
             );
         }
         return r;
     }, [posts, activeCategory, query]);
 
-    useEffect(() => { setPage(1); }, [activeCategory, query]);
+    useEffect(() => {
+        setPage(1);
+    }, [activeCategory, query]);
 
     /* Featured = newest post in filtered set */
     const featured = filtered[0];
     const rest = filtered.slice(1);
     const totalPages = Math.ceil(rest.length / ITEMS_PER_PAGE);
-    const paginated = rest.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+    const paginated = rest.slice(
+        (page - 1) * ITEMS_PER_PAGE,
+        page * ITEMS_PER_PAGE,
+    );
 
     /* Focus search input when opened */
     useEffect(() => {
@@ -124,11 +141,13 @@ export default function Blog({ posts, categories }: Props) {
                             <h1 className="text-[clamp(2.25rem,5vw,4rem)] leading-[1.02] font-bold tracking-tight text-[#4b552a]">
                                 Cerita dari
                                 <br />
-                                <span className="italic text-[#9c8e4d]">lapangan</span>
+                                <span className="text-[#9c8e4d] italic">
+                                    lapangan
+                                </span>
                             </h1>
                             <p className="mt-5 max-w-lg text-base text-gray-600">
-                                Ikuti perkembangan terbaru, kisah inspiratif, dan kabar dari
-                                program pemberdayaan kami.
+                                Ikuti perkembangan terbaru, kisah inspiratif,
+                                dan kabar dari program pemberdayaan kami.
                             </p>
                         </div>
 
@@ -136,7 +155,9 @@ export default function Blog({ posts, categories }: Props) {
                         <div className="relative w-full md:w-72">
                             <div
                                 className={`flex items-center gap-2 border-b-2 transition-all duration-500 ${
-                                    searchOpen ? 'border-[#4b552a]' : 'border-gray-300'
+                                    searchOpen
+                                        ? 'border-[#4b552a]'
+                                        : 'border-gray-300'
                                 }`}
                             >
                                 <Search size={18} className="text-gray-400" />
@@ -145,14 +166,19 @@ export default function Blog({ posts, categories }: Props) {
                                     type="text"
                                     value={query}
                                     onFocus={() => setSearchOpen(true)}
-                                    onBlur={() => { if (!query) setSearchOpen(false); }}
+                                    onBlur={() => {
+                                        if (!query) setSearchOpen(false);
+                                    }}
                                     onChange={(e) => setQuery(e.target.value)}
                                     placeholder="Cari artikel…"
                                     className="w-full bg-transparent py-2.5 text-sm outline-none placeholder:text-gray-400"
                                 />
                                 {query && (
                                     <button
-                                        onClick={() => { setQuery(''); setSearchOpen(false); }}
+                                        onClick={() => {
+                                            setQuery('');
+                                            setSearchOpen(false);
+                                        }}
                                         className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
                                         aria-label="Hapus pencarian"
                                     >
@@ -178,13 +204,18 @@ export default function Blog({ posts, categories }: Props) {
                             style={{
                                 left: indicator.left,
                                 width: indicator.width,
-                                transitionTimingFunction: 'cubic-bezier(.22,.61,.36,1)',
+                                transitionTimingFunction:
+                                    'cubic-bezier(.22,.61,.36,1)',
                             }}
                         />
                         {categoryFilters.map((cat) => (
                             <button
                                 key={cat.id}
-                                ref={activeCategory === cat.id ? activeBtnRef : null}
+                                ref={
+                                    activeCategory === cat.id
+                                        ? activeBtnRef
+                                        : null
+                                }
                                 onClick={() => setActiveCategory(cat.id)}
                                 className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors ${
                                     activeCategory === cat.id
@@ -200,7 +231,10 @@ export default function Blog({ posts, categories }: Props) {
             </section>
 
             {/* ============ CONTENT ============ */}
-            <section ref={gridRef} className="container mx-auto px-6 py-12 md:px-12 md:py-16">
+            <section
+                ref={gridRef}
+                className="container mx-auto px-6 py-12 md:px-12 md:py-16"
+            >
                 {filtered.length === 0 ? (
                     <EmptyState query={query} />
                 ) : (
@@ -208,18 +242,32 @@ export default function Blog({ posts, categories }: Props) {
                         {/* ---- FEATURED POST ---- */}
                         {featured && (
                             <Link
-                                href={featured.external_link ?? `/blog/${featured.slug ?? featured.id}`}
-                                target={featured.external_link ? '_blank' : undefined}
-                                rel={featured.external_link ? 'noopener noreferrer' : undefined}
+                                href={
+                                    featured.external_link ??
+                                    `/blog/${featured.slug ?? featured.id}`
+                                }
+                                target={
+                                    featured.external_link
+                                        ? '_blank'
+                                        : undefined
+                                }
+                                rel={
+                                    featured.external_link
+                                        ? 'noopener noreferrer'
+                                        : undefined
+                                }
                                 className="group mb-16 grid grid-cols-1 overflow-hidden rounded-[1.75rem] bg-white shadow-sm ring-1 ring-gray-100 md:grid-cols-12"
                                 style={{ animation: 'fadeUp .8s ease both' }}
                             >
-                                <div className="relative md:col-span-7 md:order-2">
-                                    <div className="aspect-[16/10] h-full overflow-hidden md:aspect-auto md:h-[440px]">
+                                <div className="relative md:order-2 md:col-span-7">
+                                    <div className="aspect-16/10 h-full overflow-hidden md:aspect-auto md:h-110">
                                         <img
-                                            src={featured.image_url ?? '/images/placeholder.webp'}
+                                            src={
+                                                featured.image_url ??
+                                                '/images/placeholder.webp'
+                                            }
                                             alt={featured.title}
-                                            className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-105"
+                                            className="h-full w-full object-cover transition-transform duration-1200 group-hover:scale-105"
                                         />
                                     </div>
                                     {featured.category && (
@@ -228,7 +276,7 @@ export default function Blog({ posts, categories }: Props) {
                                         </div>
                                     )}
                                 </div>
-                                <div className="flex flex-col justify-between p-8 md:col-span-5 md:order-1 md:p-12">
+                                <div className="flex flex-col justify-between p-8 md:order-1 md:col-span-5 md:p-12">
                                     <div>
                                         <div className="mb-4 flex items-center gap-3 text-[11px] font-bold tracking-widest text-[#9c8e4d] uppercase">
                                             <span className="h-px w-6 bg-[#9c8e4d]" />
@@ -245,12 +293,16 @@ export default function Blog({ posts, categories }: Props) {
                                         <div className="mb-5 flex flex-wrap items-center gap-3 text-xs text-gray-500">
                                             <span className="flex items-center gap-1.5">
                                                 <Calendar size={13} />
-                                                {formatDate(featured.published_at)}
+                                                {formatDate(
+                                                    featured.published_at,
+                                                )}
                                             </span>
                                             <span className="h-1 w-1 rounded-full bg-gray-300" />
                                             <span>{featured.author}</span>
                                             <span className="h-1 w-1 rounded-full bg-gray-300" />
-                                            <span>{readingTime(featured.excerpt)}</span>
+                                            <span>
+                                                {readingTime(featured.excerpt)}
+                                            </span>
                                         </div>
                                         <span className="inline-flex items-center gap-2 text-sm font-bold text-[#4b552a]">
                                             Baca artikel
@@ -267,7 +319,12 @@ export default function Blog({ posts, categories }: Props) {
                         {paginated.length > 0 && (
                             <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
                                 {paginated.map((post, i) => (
-                                    <PostCard key={post.id} post={post} index={i} visible={gridVis} />
+                                    <PostCard
+                                        key={post.id}
+                                        post={post}
+                                        index={i}
+                                        visible={gridVis}
+                                    />
                                 ))}
                             </div>
                         )}
@@ -279,7 +336,10 @@ export default function Blog({ posts, categories }: Props) {
                                 total={totalPages}
                                 onChange={(p) => {
                                     setPage(p);
-                                    window.scrollTo({ top: 320, behavior: 'smooth' });
+                                    window.scrollTo({
+                                        top: 320,
+                                        behavior: 'smooth',
+                                    });
                                 }}
                             />
                         )}
@@ -298,7 +358,15 @@ export default function Blog({ posts, categories }: Props) {
 }
 
 /* ========== POST CARD ========== */
-function PostCard({ post, index, visible }: { post: Post; index: number; visible: boolean }) {
+function PostCard({
+    post,
+    index,
+    visible,
+}: {
+    post: Post;
+    index: number;
+    visible: boolean;
+}) {
     const href = post.external_link ?? `/blog/${post.slug ?? post.id}`;
     const isExternal = Boolean(post.external_link);
     return (
@@ -310,11 +378,11 @@ function PostCard({ post, index, visible }: { post: Post; index: number; visible
             style={{ animationDelay: `${index * 0.08}s` }}
         >
             {/* Image */}
-            <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-gray-100">
+            <div className="relative aspect-4/3 overflow-hidden rounded-xl bg-gray-100">
                 <img
                     src={post.image_url ?? '/images/placeholder.webp'}
                     alt={post.title}
-                    className="h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.06]"
+                    className="h-full w-full object-cover transition-transform duration-900 ease-out group-hover:scale-[1.06]"
                 />
                 {post.category && (
                     <span className="absolute top-3 left-3 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-bold tracking-widest text-[#4b552a] uppercase backdrop-blur">
@@ -328,7 +396,7 @@ function PostCard({ post, index, visible }: { post: Post; index: number; visible
                 <Calendar size={11} />
                 {formatDate(post.published_at, 'short')}
                 <span className="h-1 w-1 rounded-full bg-gray-300" />
-                <span className="text-gray-400 normal-case tracking-normal">
+                <span className="tracking-normal text-gray-400 normal-case">
                     {readingTime(post.excerpt)}
                 </span>
             </div>
@@ -349,18 +417,30 @@ function PostCard({ post, index, visible }: { post: Post; index: number; visible
                     Baca
                     <span className="absolute -bottom-0.5 left-0 h-px w-full origin-left scale-x-0 bg-[#4b552a] transition-transform duration-300 group-hover:scale-x-100" />
                 </span>
-                <ArrowUpRight size={13} className="transition-transform group-hover:rotate-45" />
+                <ArrowUpRight
+                    size={13}
+                    className="transition-transform group-hover:rotate-45"
+                />
             </div>
         </Link>
     );
 }
 
 /* ========== PAGINATION ========== */
-function Pagination({ current, total, onChange }: { current: number; total: number; onChange: (p: number) => void }) {
+function Pagination({
+    current,
+    total,
+    onChange,
+}: {
+    current: number;
+    total: number;
+    onChange: (p: number) => void;
+}) {
     const pages = useMemo(() => {
         if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
         if (current <= 3) return [1, 2, 3, 4, '…', total] as const;
-        if (current >= total - 2) return [1, '…', total - 3, total - 2, total - 1, total] as const;
+        if (current >= total - 2)
+            return [1, '…', total - 3, total - 2, total - 1, total] as const;
         return [1, '…', current - 1, current, current + 1, '…', total] as const;
     }, [current, total]);
 
@@ -384,8 +464,8 @@ function Pagination({ current, total, onChange }: { current: number; total: numb
                             p === current
                                 ? 'bg-[#4b552a] text-white'
                                 : p === '…'
-                                    ? 'cursor-default text-gray-400'
-                                    : 'text-gray-600 hover:bg-[#eff5da] hover:text-[#4b552a]'
+                                  ? 'cursor-default text-gray-400'
+                                  : 'text-gray-600 hover:bg-[#eff5da] hover:text-[#4b552a]'
                         }`}
                     >
                         {p}
@@ -412,7 +492,9 @@ function EmptyState({ query }: { query: string }) {
                 <Inbox size={28} strokeWidth={1.5} />
             </div>
             <h3 className="text-xl font-bold text-gray-800">
-                {query ? `Tidak ada hasil untuk "${query}"` : 'Belum ada publikasi'}
+                {query
+                    ? `Tidak ada hasil untuk "${query}"`
+                    : 'Belum ada publikasi'}
             </h3>
             <p className="mt-2 max-w-sm text-sm text-gray-500">
                 {query

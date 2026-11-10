@@ -75,23 +75,7 @@ export function AppSidebar() {
         <Sidebar
             collapsible="icon"
             variant="inset"
-            className="
-                [&_[data-sidebar=sidebar]]:bg-white
-                [&_[data-sidebar=sidebar]]:border-r
-                [&_[data-sidebar=sidebar]]:border-gray-200/80
-                [&_[data-sidebar=sidebar]]:text-gray-700
-                [&_[data-sidebar=menu-button]]:text-gray-700
-                [&_[data-sidebar=menu-button]:hover]:bg-[#eff5da]
-                [&_[data-sidebar=menu-button]:hover]:text-[#4b552a]
-                [&_[data-sidebar=menu-button][data-active=true]]:bg-[#eff5da]
-                [&_[data-sidebar=menu-button][data-active=true]]:text-[#4b552a]
-                [&_[data-sidebar=menu-button][data-active=true]]:font-semibold
-                [&_[data-sidebar=group-label]]:text-gray-400
-                [&_[data-sidebar=group-label]]:font-semibold
-                [&_[data-sidebar=group-label]]:uppercase
-                [&_[data-sidebar=group-label]]:tracking-wider
-                [&_[data-sidebar=group-label]]:text-[11px]
-            "
+            className="[&_[data-sidebar=group-label]]:text-[11px] [&_[data-sidebar=group-label]]:font-semibold [&_[data-sidebar=group-label]]:tracking-wider [&_[data-sidebar=group-label]]:text-gray-400 [&_[data-sidebar=group-label]]:uppercase [&_[data-sidebar=menu-button]]:text-gray-700 [&_[data-sidebar=menu-button]:hover]:bg-[#eff5da] [&_[data-sidebar=menu-button]:hover]:text-[#4b552a] [&_[data-sidebar=menu-button][data-active=true]]:bg-[#eff5da] [&_[data-sidebar=menu-button][data-active=true]]:font-semibold [&_[data-sidebar=menu-button][data-active=true]]:text-[#4b552a] [&_[data-sidebar=sidebar]]:border-r [&_[data-sidebar=sidebar]]:border-gray-200/80 [&_[data-sidebar=sidebar]]:bg-white [&_[data-sidebar=sidebar]]:text-gray-700"
         >
             <SidebarHeader className="px-2 pt-3 pb-2">
                 <SidebarMenu>

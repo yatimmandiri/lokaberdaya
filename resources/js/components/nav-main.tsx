@@ -21,7 +21,7 @@ export function NavMain({
     return (
         <SidebarGroup className="px-2 py-1">
             {/* Label grup dibuat abu-abu kecil & uppercase ala dashboard */}
-            <SidebarGroupLabel className="text-[11px] font-semibold tracking-wider text-gray-400 uppercase mb-1">
+            <SidebarGroupLabel className="mb-1 text-[11px] font-semibold tracking-wider text-gray-400 uppercase">
                 {label}
             </SidebarGroupLabel>
             <SidebarMenu className="gap-1">
@@ -34,13 +34,11 @@ export function NavMain({
                                 isActive={active}
                                 tooltip={{ children: item.title }}
                                 // Paksa warna default abu gelap, aktif/hover hijau
-                                className={`
-                                    rounded-lg transition-all duration-200
-                                    ${active 
-                                        ? '!bg-[#eff5da] !text-[#4b552a] font-semibold shadow-sm' 
+                                className={`rounded-lg transition-all duration-200 ${
+                                    active
+                                        ? '!bg-[#eff5da] font-semibold !text-[#4b552a] shadow-sm'
                                         : 'text-gray-600 hover:!bg-[#f7f9f0] hover:!text-[#4b552a]'
-                                    }
-                                `}
+                                } `}
                             >
                                 <Link
                                     href={item.href}

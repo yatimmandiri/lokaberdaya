@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import type { Program, ProgramActivity } from '@/types/content';
+import type { Program } from '@/types/content';
+import { slugify } from '@/lib/utils';
 import {
     Users,
     Building2,
@@ -12,7 +13,6 @@ import {
     Wallet,
     MapPin,
     TrendingUp,
-    X,
 } from 'lucide-react';
 
 // --- HOOK: reveal on scroll ---
@@ -55,20 +55,6 @@ type Props = {
 };
 
 export default function Agroforestry({ program }: Props) {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedKegiatan, setSelectedKegiatan] =
-        useState<ProgramActivity | null>(null);
-
-    const handleOpenModal = (item: ProgramActivity) => {
-        setSelectedKegiatan(item);
-        setIsModalOpen(true);
-    };
-
-    const handleCloseModal = () => {
-        setIsModalOpen(false);
-        setSelectedKegiatan(null);
-    };
-
     // --- ANIMATION STATE & REFS ---
     const [heroLoaded, setHeroLoaded] = useState(false);
     const [statsRef, statsVisible] = useReveal();
@@ -245,55 +231,19 @@ export default function Agroforestry({ program }: Props) {
                                     </ul>
                                 </div>
 
-                                <button
-                                    onClick={() => handleOpenModal(item)}
-                                    className="mt-auto w-full cursor-pointer rounded-lg bg-[#4b552a] py-2.5 text-sm font-medium text-white transition hover:bg-[#3a4220]"
+                                <Link
+                                    href={`/program/${program.slug}/${slugify(item.city)}`}
+                                    className="mt-auto w-full cursor-pointer rounded-lg bg-[#4b552a] py-2.5 text-center text-sm font-medium text-white transition hover:bg-[#3a4220]"
                                 >
                                     Selengkapnya
-                                </button>
+                                </Link>
                             </div>
                         </div>
                     ))}
                 </div>
             </section>
 
-            {/* 5. MODAL / POP-UP PENJELASAN */}
-            {isModalOpen && selectedKegiatan && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-                    <div className="flex max-h-[90vh] w-full max-w-3xl animate-in flex-col overflow-hidden rounded-3xl bg-white shadow-2xl duration-300 fade-in zoom-in">
-                        {/* Header Modal */}
-                        <div className="flex items-center justify-between border-b border-gray-100 bg-[#f7ffda] p-6">
-                            <h3 className="text-2xl font-bold text-[#4b552a]">
-                                {program.title} di {selectedKegiatan.city}
-                            </h3>
-
-                            <button
-                                onClick={handleCloseModal}
-                                className="cursor-pointer rounded-full bg-white p-2 text-gray-500 shadow-sm transition hover:bg-red-50 hover:text-red-500"
-                            >
-                                <X size={24} />
-                            </button>
-                        </div>
-
-                        {/* Konten Modal */}
-                        <div className="overflow-y-auto p-8 text-justify leading-relaxed whitespace-pre-wrap text-gray-700">
-                            {selectedKegiatan.long_description}
-                        </div>
-
-                        {/* Footer Modal */}
-                        <div className="flex justify-end border-t border-gray-100 bg-gray-50 p-4">
-                            <button
-                                onClick={handleCloseModal}
-                                className="cursor-pointer rounded-lg bg-[#4b552a] px-8 py-2.5 font-medium text-white transition hover:bg-[#3a4220]"
-                            >
-                                Tutup
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* 6. FOOTER */}
+            {/* 5. FOOTER */}
             <Footer />
         </div>
     );

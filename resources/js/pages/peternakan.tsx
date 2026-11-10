@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import type { Program, ProgramActivity } from '@/types/content';
+import { slugify } from '@/lib/utils';
 import {
     Users,
     Building2,
@@ -12,7 +13,6 @@ import {
     Wallet,
     MapPin,
     TrendingUp,
-    X,
 } from 'lucide-react';
 
 // --- HOOK: reveal on scroll ---
@@ -56,21 +56,6 @@ type Props = {
 
 export default function Peternakan({ program }: Props) {
     const site = usePage().props.site ?? {};
-
-    // State untuk Modal
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedKegiatan, setSelectedKegiatan] =
-        useState<ProgramActivity | null>(null);
-
-    const handleOpenModal = (item: ProgramActivity) => {
-        setSelectedKegiatan(item);
-        setIsModalOpen(true);
-    };
-
-    const handleCloseModal = () => {
-        setIsModalOpen(false);
-        setSelectedKegiatan(null);
-    };
 
     // --- ANIMATION STATE & REFS ---
     const [heroLoaded, setHeroLoaded] = useState(false);
@@ -149,7 +134,7 @@ export default function Peternakan({ program }: Props) {
                                 '/images/peternakan.webp'
                             }
                             alt={program.title}
-                            className="h-[400px] w-full rounded-3xl rounded-tr-[6rem] border-4 border-white object-cover shadow-lg md:h-[600px]"
+                            className="h-100 w-full rounded-3xl rounded-tr-[6rem] border-4 border-white object-cover shadow-lg md:h-150"
                         />
                     </div>
 
@@ -192,7 +177,7 @@ export default function Peternakan({ program }: Props) {
                                     )}
 
                                     <div className="flex w-full items-start gap-4 md:w-1/3">
-                                        <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-[#fce4d1] text-[#d97736]">
+                                        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#fce4d1] text-[#d97736]">
                                             <Icon size={32} />
                                         </div>
                                         <div>
@@ -250,19 +235,19 @@ export default function Peternakan({ program }: Props) {
                                     className="h-full w-full object-cover transition duration-500 hover:scale-105"
                                 />
                             </div>
-                            <div className="flex flex-grow flex-col p-6">
+                            <div className="flex grow flex-col p-6">
                                 <h3 className="mb-3 text-xl font-bold text-gray-900">
                                     {item.city}
                                 </h3>
-                                <p className="mb-6 flex-grow text-sm leading-relaxed text-gray-600">
+                                <p className="mb-6 grow text-sm leading-relaxed text-gray-600">
                                     {cardDescription(item)}
                                 </p>
-                                <button
-                                    onClick={() => handleOpenModal(item)}
-                                    className="mt-auto w-full cursor-pointer rounded-lg bg-[#4b552a] py-2.5 text-sm font-medium text-white transition hover:bg-[#3a4220]"
+                                <Link
+                                    href={`/program/${program.slug}/${slugify(item.city)}`}
+                                    className="mt-auto w-full cursor-pointer rounded-lg bg-[#4b552a] py-2.5 text-center text-sm font-medium text-white transition hover:bg-[#3a4220]"
                                 >
                                     Selengkapnya
-                                </button>
+                                </Link>
                             </div>
                         </div>
                     ))}
@@ -309,58 +294,26 @@ export default function Peternakan({ program }: Props) {
                                     className="h-full w-full object-cover transition duration-500 hover:scale-105"
                                 />
                             </div>
-                            <div className="flex flex-grow flex-col p-6">
+                            <div className="flex grow flex-col p-6">
                                 <h3 className="mb-3 text-xl font-bold text-gray-900">
                                     {item.city}
                                 </h3>
-                                <p className="mb-6 flex-grow text-sm leading-relaxed text-gray-600">
+                                <p className="mb-6 grow text-sm leading-relaxed text-gray-600">
                                     {cardDescription(item)}
                                 </p>
-                                <button
-                                    onClick={() => handleOpenModal(item)}
-                                    className="mt-auto w-full cursor-pointer rounded-lg bg-[#4b552a] py-2.5 text-sm font-medium text-white transition hover:bg-[#3a4220]"
+                                <Link
+                                    href={`/program/${program.slug}/${slugify(item.city)}`}
+                                    className="mt-auto w-full cursor-pointer rounded-lg bg-[#4b552a] py-2.5 text-center text-sm font-medium text-white transition hover:bg-[#3a4220]"
                                 >
                                     Selengkapnya
-                                </button>
+                                </Link>
                             </div>
                         </div>
                     ))}
                 </div>
             </section>
 
-            {/* 6. MODAL / POP-UP PENJELASAN */}
-            {isModalOpen && selectedKegiatan && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-                    <div className="flex max-h-[90vh] w-full max-w-3xl animate-in flex-col overflow-hidden rounded-3xl bg-white shadow-2xl duration-300 fade-in zoom-in">
-                        <div className="flex items-center justify-between border-b border-gray-100 bg-[#f7ffda] p-6">
-                            <h3 className="text-2xl font-bold text-[#4b552a]">
-                                Peternakan di {selectedKegiatan.city}
-                            </h3>
-                            <button
-                                onClick={handleCloseModal}
-                                className="cursor-pointer rounded-full bg-white p-2 text-gray-500 shadow-sm transition hover:bg-red-50 hover:text-red-500"
-                            >
-                                <X size={24} />
-                            </button>
-                        </div>
-
-                        <div className="overflow-y-auto p-8 text-justify leading-relaxed whitespace-pre-wrap text-gray-700">
-                            {selectedKegiatan.long_description}
-                        </div>
-
-                        <div className="flex justify-end border-t border-gray-100 bg-gray-50 p-4">
-                            <button
-                                onClick={handleCloseModal}
-                                className="cursor-pointer rounded-lg bg-[#4b552a] px-8 py-2.5 font-medium text-white transition hover:bg-[#3a4220]"
-                            >
-                                Tutup
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* 7. FOOTER */}
+            {/* 6. FOOTER */}
             <Footer />
         </div>
     );

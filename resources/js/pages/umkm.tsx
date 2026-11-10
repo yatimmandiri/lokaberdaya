@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import type { Program, UmkmRegion } from '@/types/content';
+import { slugify } from '@/lib/utils';
 import {
     Users,
     Building2,
@@ -12,7 +13,6 @@ import {
     Wallet,
     MapPin,
     TrendingUp,
-    X,
 } from 'lucide-react';
 
 // --- HOOK: reveal on scroll ---
@@ -55,12 +55,12 @@ function UmkmCard({
     item,
     index,
     visible,
-    onOpenModal,
+    programSlug,
 }: {
     item: UmkmRegion;
     index: number;
     visible: boolean;
-    onOpenModal: (item: UmkmRegion) => void;
+    programSlug: string;
 }) {
     const [currentImgIndex, setCurrentImgIndex] = useState(0);
 
@@ -124,20 +124,20 @@ function UmkmCard({
             </div>
 
             {/* Konten Kartu */}
-            <div className="flex flex-grow flex-col p-6">
+            <div className="flex grow flex-col p-6">
                 <h3 className="mb-3 text-2xl font-bold text-gray-900">
                     {item.city}
                 </h3>
-                <p className="mb-6 flex-grow text-sm leading-relaxed text-gray-600">
+                <p className="mb-6 grow text-sm leading-relaxed text-gray-600">
                     {item.description ??
                         `Terdapat ${beneficiaryCount} pelaku usaha yang telah mendapatkan pendampingan dan permodalan di wilayah ini.`}
                 </p>
-                <button
-                    onClick={() => onOpenModal(item)}
-                    className="mt-auto w-full cursor-pointer rounded-lg bg-[#4b552a] py-2.5 text-sm font-medium text-white transition hover:bg-[#3a4220]"
+                <Link
+                    href={`/program/${programSlug}/${slugify(item.city)}`}
+                    className="mt-auto w-full cursor-pointer rounded-lg bg-[#4b552a] py-2.5 text-center text-sm font-medium text-white transition hover:bg-[#3a4220]"
                 >
                     Lihat Penerima Manfaat
-                </button>
+                </Link>
             </div>
         </div>
     );
@@ -149,19 +149,6 @@ type Props = {
 };
 
 export default function Umkm({ program, regions }: Props) {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedKota, setSelectedKota] = useState<UmkmRegion | null>(null);
-
-    const handleOpenModal = (item: UmkmRegion) => {
-        setSelectedKota(item);
-        setIsModalOpen(true);
-    };
-
-    const handleCloseModal = () => {
-        setIsModalOpen(false);
-        setSelectedKota(null);
-    };
-
     // --- ANIMATION STATE & REFS ---
     const [heroLoaded, setHeroLoaded] = useState(false);
     const [statsRef, statsVisible] = useReveal();
@@ -218,7 +205,7 @@ export default function Umkm({ program, regions }: Props) {
                         <img
                             src={program.hero_image_url ?? '/images/umkm.webp'}
                             alt={program.title}
-                            className="h-[400px] w-full rounded-3xl rounded-tr-[6rem] border-4 border-white object-cover shadow-lg md:h-[600px]"
+                            className="h-100 w-full rounded-3xl rounded-tr-[6rem] border-4 border-white object-cover shadow-lg md:h-150"
                         />
                     </div>
 
@@ -268,7 +255,7 @@ export default function Umkm({ program, regions }: Props) {
                                     )}
 
                                     <div className="flex w-full items-center gap-4 md:w-1/4">
-                                        <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-[#fce4d1] text-[#d97736]">
+                                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#fce4d1] text-[#d97736]">
                                             <Icon size={28} />
                                         </div>
                                         <div>
@@ -314,86 +301,13 @@ export default function Umkm({ program, regions }: Props) {
                             item={item}
                             index={index}
                             visible={gridVisible}
-                            onOpenModal={handleOpenModal}
+                            programSlug={program.slug}
                         />
                     ))}
                 </div>
             </section>
 
-            {/* 5. MODAL / POP-UP DAFTAR PENERIMA MANFAAT */}
-            {isModalOpen && selectedKota && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-                    <div className="flex max-h-[90vh] w-full max-w-2xl animate-in flex-col overflow-hidden rounded-3xl bg-white shadow-2xl duration-300 fade-in zoom-in">
-                        <div className="flex items-center justify-between border-b border-gray-100 bg-[#f7ffda] p-6">
-                            <div>
-                                <h3 className="text-2xl font-bold text-[#4b552a]">
-                                    Penerima Manfaat
-                                </h3>
-                                <p className="text-sm text-gray-600">
-                                    Wilayah {selectedKota.city}
-                                </p>
-                            </div>
-                            <button
-                                onClick={handleCloseModal}
-                                className="cursor-pointer rounded-full bg-white p-2 text-gray-500 shadow-sm transition hover:bg-red-50 hover:text-red-500"
-                            >
-                                <X size={24} />
-                            </button>
-                        </div>
-
-                        <div className="overflow-y-auto p-6">
-                            <div className="overflow-x-auto">
-                                <table className="w-full border-collapse text-left">
-                                    <thead>
-                                        <tr className="bg-gray-50 text-gray-700">
-                                            <th className="rounded-tl-lg border-b-2 border-gray-200 p-3 font-semibold">
-                                                No
-                                            </th>
-                                            <th className="border-b-2 border-gray-200 p-3 font-semibold">
-                                                Nama
-                                            </th>
-                                            <th className="rounded-tr-lg border-b-2 border-gray-200 p-3 font-semibold">
-                                                Bidang Usaha
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {selectedKota.beneficiaries.map(
-                                            (pm, index) => (
-                                                <tr
-                                                    key={pm.id}
-                                                    className="transition hover:bg-[#f7ffda]/50"
-                                                >
-                                                    <td className="border-b border-gray-100 p-3 text-gray-500">
-                                                        {index + 1}
-                                                    </td>
-                                                    <td className="border-b border-gray-100 p-3 font-medium text-gray-800">
-                                                        {pm.name}
-                                                    </td>
-                                                    <td className="border-b border-gray-100 p-3 text-gray-600">
-                                                        {pm.business}
-                                                    </td>
-                                                </tr>
-                                            ),
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div className="flex justify-end border-t border-gray-100 bg-gray-50 p-4">
-                            <button
-                                onClick={handleCloseModal}
-                                className="cursor-pointer rounded-lg bg-[#4b552a] px-8 py-2.5 font-medium text-white transition hover:bg-[#3a4220]"
-                            >
-                                Tutup
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* 6. FOOTER */}
+            {/* 5. FOOTER */}
             <Footer />
         </div>
     );

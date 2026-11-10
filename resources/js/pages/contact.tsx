@@ -1,8 +1,17 @@
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
-    Phone, Mail, MapPin, Send, Copy, Check, ArrowUpRight,
-    Clock, MessageCircle, AlertCircle, ArrowRight,
+    Phone,
+    Mail,
+    MapPin,
+    Send,
+    Copy,
+    Check,
+    ArrowUpRight,
+    Clock,
+    MessageCircle,
+    AlertCircle,
+    ArrowRight,
 } from 'lucide-react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -12,14 +21,25 @@ export default function Contact() {
 
     const phone = site.phone ?? '081 330003450';
     const email = site.email ?? 'info@lokaberdaya.com';
-    const address = site.address ??
+    const address =
+        site.address ??
         'Jl. Sarirogo No.1, Sari Rogo, Kec. Sidoarjo, Kabupaten Sidoarjo, Jawa Timur 61234';
-    const mapsUrl = site.maps_embed_url ??
+    const mapsUrl =
+        site.maps_embed_url ??
         'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3956.307548570149!2d112.67889967357418!3d-7.431179073205722!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd7e132a4632891%3A0x4058849ad5fd97eb!2sYatim%20Mandiri%20Sidoarjo!5e0!3m2!1sid!2sid!4v1793240614969!5m2!1sid!2sid';
 
     const form = useForm({ name: '', email: '', subject: '', message: '' });
     const [sent, setSent] = useState(false);
     const [copied, setCopied] = useState<'phone' | 'email' | null>(null);
+    const sentTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const copiedTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (sentTimeout.current) clearTimeout(sentTimeout.current);
+            if (copiedTimeout.current) clearTimeout(copiedTimeout.current);
+        };
+    }, []);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -28,7 +48,8 @@ export default function Contact() {
             onSuccess: () => {
                 form.reset();
                 setSent(true);
-                setTimeout(() => setSent(false), 5000);
+                if (sentTimeout.current) clearTimeout(sentTimeout.current);
+                sentTimeout.current = setTimeout(() => setSent(false), 5000);
             },
         });
     };
@@ -37,8 +58,11 @@ export default function Contact() {
         try {
             await navigator.clipboard.writeText(text);
             setCopied(kind);
-            setTimeout(() => setCopied(null), 1800);
-        } catch { /* noop */ }
+            if (copiedTimeout.current) clearTimeout(copiedTimeout.current);
+            copiedTimeout.current = setTimeout(() => setCopied(null), 1800);
+        } catch {
+            /* noop */
+        }
     };
 
     return (
@@ -69,11 +93,15 @@ export default function Contact() {
                             </div>
                             <h1 className="text-[clamp(2.25rem,5vw,4rem)] leading-[1.02] font-bold tracking-tight text-[#4b552a]">
                                 Mari
-                                <span className="italic text-[#9c8e4d]"> berbicara</span>
+                                <span className="text-[#9c8e4d] italic">
+                                    {' '}
+                                    berbicara
+                                </span>
                             </h1>
                             <p className="mt-5 max-w-lg text-base leading-relaxed text-gray-600">
-                                Kami siap membantu dan menjawab pertanyaan Anda terkait program, kerja sama,
-                                maupun informasi lainnya.
+                                Kami siap membantu dan menjawab pertanyaan Anda
+                                terkait program, kerja sama, maupun informasi
+                                lainnya.
                             </p>
                         </div>
                         <div className="md:col-span-4">
@@ -82,8 +110,12 @@ export default function Contact() {
                                     <Clock size={18} />
                                 </div>
                                 <div>
-                                    <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">Jam Operasional</div>
-                                    <div className="text-sm font-semibold text-gray-900">Senin – Jumat, 08.00 – 17.00</div>
+                                    <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">
+                                        Jam Operasional
+                                    </div>
+                                    <div className="text-sm font-semibold text-gray-900">
+                                        Senin – Jumat, 08.00 – 17.00
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -97,8 +129,12 @@ export default function Contact() {
                     {/* LEFT — Contact rows */}
                     <div className="md:col-span-5">
                         <div className="mb-8 flex items-baseline justify-between">
-                            <h2 className="text-lg font-bold text-gray-900">Kontak Langsung</h2>
-                            <span className="text-[11px] font-mono text-gray-400 uppercase tracking-widest">01 — Direct</span>
+                            <h2 className="text-lg font-bold text-gray-900">
+                                Kontak Langsung
+                            </h2>
+                            <span className="font-mono text-[11px] tracking-widest text-gray-400 uppercase">
+                                01 — Direct
+                            </span>
                         </div>
 
                         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
@@ -108,7 +144,9 @@ export default function Contact() {
                                     <Phone size={18} />
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">Telepon / WhatsApp</div>
+                                    <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">
+                                        Telepon / WhatsApp
+                                    </div>
                                     <a
                                         href={`tel:${phone.replace(/\s+/g, '')}`}
                                         className="block truncate text-sm font-bold text-gray-900 hover:text-[#4b552a]"
@@ -121,7 +159,14 @@ export default function Contact() {
                                     className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-white hover:text-[#4b552a]"
                                     aria-label="Salin nomor telepon"
                                 >
-                                    {copied === 'phone' ? <Check size={15} className="check-pop text-[#4b552a]" /> : <Copy size={15} />}
+                                    {copied === 'phone' ? (
+                                        <Check
+                                            size={15}
+                                            className="check-pop text-[#4b552a]"
+                                        />
+                                    ) : (
+                                        <Copy size={15} />
+                                    )}
                                 </button>
                                 <a
                                     href={`https://wa.me/${phone.replace(/\D/g, '').replace(/^0/, '62')}`}
@@ -140,7 +185,9 @@ export default function Contact() {
                                     <Mail size={18} />
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">Email</div>
+                                    <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">
+                                        Email
+                                    </div>
                                     <a
                                         href={`mailto:${email}`}
                                         className="block truncate text-sm font-bold text-gray-900 hover:text-[#4b552a]"
@@ -153,7 +200,14 @@ export default function Contact() {
                                     className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-white hover:text-[#4b552a]"
                                     aria-label="Salin email"
                                 >
-                                    {copied === 'email' ? <Check size={15} className="check-pop text-[#4b552a]" /> : <Copy size={15} />}
+                                    {copied === 'email' ? (
+                                        <Check
+                                            size={15}
+                                            className="check-pop text-[#4b552a]"
+                                        />
+                                    ) : (
+                                        <Copy size={15} />
+                                    )}
                                 </button>
                             </div>
 
@@ -168,10 +222,17 @@ export default function Contact() {
                                     <MapPin size={18} />
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">Alamat Kantor</div>
-                                    <div className="text-sm leading-relaxed font-medium text-gray-900">{address}</div>
+                                    <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">
+                                        Alamat Kantor
+                                    </div>
+                                    <div className="text-sm leading-relaxed font-medium text-gray-900">
+                                        {address}
+                                    </div>
                                 </div>
-                                <ArrowRight size={16} className="row-arrow mt-3 shrink-0 text-[#4b552a]" />
+                                <ArrowRight
+                                    size={16}
+                                    className="row-arrow mt-3 shrink-0 text-[#4b552a]"
+                                />
                             </a>
                         </div>
 
@@ -182,7 +243,10 @@ export default function Contact() {
                                     src={mapsUrl}
                                     width="100%"
                                     height="100%"
-                                    style={{ border: 0, filter: 'grayscale(0.15)' }}
+                                    style={{
+                                        border: 0,
+                                        filter: 'grayscale(0.15)',
+                                    }}
                                     allowFullScreen
                                     loading="lazy"
                                     referrerPolicy="no-referrer-when-downgrade"
@@ -203,8 +267,12 @@ export default function Contact() {
                     {/* RIGHT — Form */}
                     <div className="md:col-span-7">
                         <div className="mb-8 flex items-baseline justify-between">
-                            <h2 className="text-lg font-bold text-gray-900">Kirim Pesan</h2>
-                            <span className="text-[11px] font-mono text-gray-400 uppercase tracking-widest">02 — Form</span>
+                            <h2 className="text-lg font-bold text-gray-900">
+                                Kirim Pesan
+                            </h2>
+                            <span className="font-mono text-[11px] tracking-widest text-gray-400 uppercase">
+                                02 — Form
+                            </span>
                         </div>
 
                         <div className="rounded-2xl border border-gray-200 bg-white p-6 md:p-10">
@@ -215,7 +283,9 @@ export default function Contact() {
                                         label="Nama lengkap"
                                         type="text"
                                         value={form.data.name}
-                                        onChange={(v) => form.setData('name', v)}
+                                        onChange={(v) =>
+                                            form.setData('name', v)
+                                        }
                                         error={form.errors.name}
                                         required
                                         autoComplete="name"
@@ -224,7 +294,9 @@ export default function Contact() {
                                         label="Email"
                                         type="email"
                                         value={form.data.email}
-                                        onChange={(v) => form.setData('email', v)}
+                                        onChange={(v) =>
+                                            form.setData('email', v)
+                                        }
                                         error={form.errors.email}
                                         required
                                         autoComplete="email"
@@ -254,7 +326,11 @@ export default function Contact() {
                                 {/* Submit row */}
                                 <div className="flex flex-wrap items-center justify-between gap-4 border-t border-gray-100 pt-6">
                                     <p className="text-xs text-gray-500">
-                                        Kami akan merespons dalam <span className="font-semibold text-gray-700">1×24 jam kerja</span>.
+                                        Kami akan merespons dalam{' '}
+                                        <span className="font-semibold text-gray-700">
+                                            1×24 jam kerja
+                                        </span>
+                                        .
                                     </p>
                                     <button
                                         type="submit"
@@ -276,7 +352,10 @@ export default function Contact() {
                                         ) : (
                                             <>
                                                 Kirim Pesan
-                                                <Send size={15} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                                                <Send
+                                                    size={15}
+                                                    className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                                                />
                                             </>
                                         )}
                                     </button>
@@ -286,13 +365,22 @@ export default function Contact() {
                                 {sent && (
                                     <div
                                         className="flex items-start gap-3 rounded-xl border border-[#c3d49a] bg-[#eff5da] p-4 text-sm text-[#4b552a]"
-                                        style={{ animation: 'fadeUp .5s ease both' }}
+                                        style={{
+                                            animation: 'fadeUp .5s ease both',
+                                        }}
                                     >
-                                        <Check size={18} className="mt-0.5 shrink-0" />
+                                        <Check
+                                            size={18}
+                                            className="mt-0.5 shrink-0"
+                                        />
                                         <div>
-                                            <div className="font-bold">Pesan terkirim!</div>
+                                            <div className="font-bold">
+                                                Pesan terkirim!
+                                            </div>
                                             <div className="mt-0.5 text-xs text-[#4b552a]/80">
-                                                Terima kasih. Kami akan menghubungi Anda kembali secepatnya.
+                                                Terima kasih. Kami akan
+                                                menghubungi Anda kembali
+                                                secepatnya.
                                             </div>
                                         </div>
                                     </div>
@@ -311,7 +399,14 @@ export default function Contact() {
 
 /* ========== FLOATING FIELD ========== */
 function FloatingField({
-    label, type, value, onChange, error, required, rows = 3, autoComplete,
+    label,
+    type,
+    value,
+    onChange,
+    error,
+    required,
+    rows = 3,
+    autoComplete,
 }: {
     label: string;
     type: 'text' | 'email' | 'textarea';
@@ -328,7 +423,11 @@ function FloatingField({
     const hasError = Boolean(error);
 
     const baseInput = `w-full border-b-2 bg-transparent px-0 pt-6 pb-2 text-sm text-gray-900 outline-none transition-colors ${
-        hasError ? 'border-red-400' : active ? 'border-[#4b552a]' : 'border-gray-300'
+        hasError
+            ? 'border-red-400'
+            : active
+              ? 'border-[#4b552a]'
+              : 'border-gray-300'
     }`;
 
     return (
@@ -340,7 +439,8 @@ function FloatingField({
                         : 'top-5 text-sm text-gray-400'
                 } ${hasError ? 'text-red-500' : active ? 'text-[#4b552a]' : ''}`}
             >
-                {label}{required && <span className="ml-0.5">*</span>}
+                {label}
+                {required && <span className="ml-0.5">*</span>}
             </label>
 
             {type === 'textarea' ? (
@@ -367,7 +467,10 @@ function FloatingField({
             )}
 
             {hasError && (
-                <p className="mt-1.5 flex items-center gap-1 text-xs text-red-500" style={{ animation: 'fadeUp .3s ease both' }}>
+                <p
+                    className="mt-1.5 flex items-center gap-1 text-xs text-red-500"
+                    style={{ animation: 'fadeUp .3s ease both' }}
+                >
                     <AlertCircle size={12} />
                     {error}
                 </p>

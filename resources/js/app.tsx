@@ -20,6 +20,8 @@ void createInertiaApp({
             case name === 'agroforestry':
             case name === 'peternakan':
             case name === 'umkm':
+            case name === 'program-activity':
+            case name === 'umkm-region':
             case name === 'blog':
                 // <--- TAMBAHAN BARU: Agar landing page bebas sidebar
                 return null;

@@ -71,11 +71,7 @@ export default function AdminPosts({ posts }: Props) {
 
             if (!q) return true;
 
-            const haystack = [
-                p.title,
-                p.author ?? '',
-                p.category?.name ?? '',
-            ]
+            const haystack = [p.title, p.author ?? '', p.category?.name ?? '']
                 .join(' ')
                 .toLowerCase();
 
@@ -85,9 +81,7 @@ export default function AdminPosts({ posts }: Props) {
 
     const visible = showAll ? filtered : filtered.slice(0, perPage);
     const hasActiveFilter =
-        search.trim() !== '' ||
-        status !== 'all' ||
-        categoryId !== 'all';
+        search.trim() !== '' || status !== 'all' || categoryId !== 'all';
 
     const resetFilters = () => {
         setSearch('');
@@ -122,19 +116,19 @@ export default function AdminPosts({ posts }: Props) {
                     <div className="flex flex-col gap-3 md:flex-row md:items-center">
                         {/* Search */}
                         <div className="relative flex-1">
-                            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
                             <input
                                 type="text"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Cari judul, penulis, atau kategori..."
-                                className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-9 text-sm text-gray-900 outline-none transition focus:border-[#4b552a] focus:ring-1 focus:ring-[#4b552a]"
+                                className="w-full rounded-lg border border-gray-300 py-2 pr-9 pl-9 text-sm text-gray-900 transition outline-none focus:border-[#4b552a] focus:ring-1 focus:ring-[#4b552a]"
                             />
                             {search && (
                                 <button
                                     type="button"
                                     onClick={() => setSearch('')}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                    className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                                     aria-label="Hapus pencarian"
                                 >
                                     <X className="h-4 w-4" />
@@ -148,7 +142,7 @@ export default function AdminPosts({ posts }: Props) {
                             onChange={(e) =>
                                 setStatus(e.target.value as StatusFilter)
                             }
-                            className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-[#4b552a] focus:ring-1 focus:ring-[#4b552a]"
+                            className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 transition outline-none focus:border-[#4b552a] focus:ring-1 focus:ring-[#4b552a]"
                         >
                             <option value="all">Semua Status</option>
                             <option value="published">Terbit</option>
@@ -159,7 +153,7 @@ export default function AdminPosts({ posts }: Props) {
                         <select
                             value={categoryId}
                             onChange={(e) => setCategoryId(e.target.value)}
-                            className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-[#4b552a] focus:ring-1 focus:ring-[#4b552a]"
+                            className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 transition outline-none focus:border-[#4b552a] focus:ring-1 focus:ring-[#4b552a]"
                         >
                             <option value="all">Semua Kategori</option>
                             {categories.map((c) => (
@@ -219,10 +213,12 @@ export default function AdminPosts({ posts }: Props) {
                                             <p className="text-sm text-gray-500">
                                                 {post.category?.name ??
                                                     'Tanpa kategori'}{' '}
-                                                · {post.author ?? 'Tanpa penulis'}
+                                                ·{' '}
+                                                {post.author ?? 'Tanpa penulis'}
                                             </p>
                                             <p className="text-xs text-gray-400">
-                                                {formatDate(post.published_at)} ·{' '}
+                                                {formatDate(post.published_at)}{' '}
+                                                ·{' '}
                                                 {post.is_published ? (
                                                     <span className="font-medium text-green-600">
                                                         Terbit
