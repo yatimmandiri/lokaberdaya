@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\ProgramController as AdminProgramController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Admin\UmkmRegionController;
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ContactMessageController;
 use App\Http\Controllers\PageController;
@@ -22,6 +23,9 @@ Route::get('/', [PageController::class, 'landing'])->name('home');
 Route::get('/tentang', [PageController::class, 'about'])->name('tentang');
 Route::get('/kontak', [PageController::class, 'contact'])->name('kontak');
 Route::post('/kontak', [ContactMessageController::class, 'store'])->name('kontak.store');
+
+Route::get('/auth/google/redirect', [GoogleController::class, 'redirect'])->name('auth.google.redirect');
+Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('auth.google.callback');
 
 Route::get('/program/agriculture', [ProgramController::class, 'agriculture'])->name('agriculture');
 Route::get('/program/agroforestry', [ProgramController::class, 'agroforestry'])->name('agroforestry');
