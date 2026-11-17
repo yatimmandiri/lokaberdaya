@@ -36,6 +36,7 @@ export default function AdminHeroSlides({ slides }: Props) {
                         deleteUrl={(slide) => `/admin/hero-slides/${slide.id}`}
                         itemTitle={(slide) => slide.title || 'Slide'}
                         createButtonLabel="Tambah Slide"
+                        layout="list"
                         renderItem={(slide) => (
                             <div className="flex items-start gap-4">
                                 {slide.image_url && (

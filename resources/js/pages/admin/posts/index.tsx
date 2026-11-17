@@ -1,6 +1,8 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Pencil, Plus, Search, Trash2, X } from 'lucide-react';
+import { type ColumnDef } from '@tanstack/react-table';
+import { Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { DataTable } from '@/components/admin/data-table';
 import { Button } from '@/components/ui/button';
 import type { Post } from '@/types/content';
 
@@ -28,8 +30,6 @@ export default function AdminPosts({ posts }: Props) {
     const [search, setSearch] = useState('');
     const [status, setStatus] = useState<StatusFilter>('all');
     const [categoryId, setCategoryId] = useState<string>('all');
-    const [showAll, setShowAll] = useState(false);
-    const [perPage, setPerPage] = useState(10);
 
     const remove = (post: Post) => {
         if (
@@ -43,43 +43,44 @@ export default function AdminPosts({ posts }: Props) {
         router.delete(`/admin/posts/${post.id}`, { preserveScroll: true });
     };
 
-    // Daftar kategori unik dari posts
     const categories = useMemo(() => {
         const map = new Map<string, string>();
-        posts.forEach((p) => {
-            if (p.category?.id && p.category?.name) {
-                map.set(String(p.category.id), p.category.name);
+        posts.forEach((post) => {
+            if (post.category?.id && post.category?.name) {
+                map.set(String(post.category.id), post.category.name);
             }
         });
         return Array.from(map, ([id, name]) => ({ id, name }));
     }, [posts]);
 
-    // Filter + search
     const filtered = useMemo(() => {
-        const q = search.trim().toLowerCase();
+        const query = search.trim().toLowerCase();
 
-        return posts.filter((p) => {
-            if (status === 'published' && !p.is_published) return false;
-            if (status === 'draft' && p.is_published) return false;
+        return posts.filter((post) => {
+            if (status === 'published' && !post.is_published) return false;
+            if (status === 'draft' && post.is_published) return false;
 
             if (
                 categoryId !== 'all' &&
-                String(p.category?.id ?? '') !== categoryId
+                String(post.category?.id ?? '') !== categoryId
             ) {
                 return false;
             }
 
-            if (!q) return true;
+            if (!query) return true;
 
-            const haystack = [p.title, p.author ?? '', p.category?.name ?? '']
+            const haystack = [
+                post.title,
+                post.author ?? '',
+                post.category?.name ?? '',
+            ]
                 .join(' ')
                 .toLowerCase();
 
-            return haystack.includes(q);
+            return haystack.includes(query);
         });
     }, [posts, search, status, categoryId]);
 
-    const visible = showAll ? filtered : filtered.slice(0, perPage);
     const hasActiveFilter =
         search.trim() !== '' || status !== 'all' || categoryId !== 'all';
 
@@ -88,6 +89,100 @@ export default function AdminPosts({ posts }: Props) {
         setStatus('all');
         setCategoryId('all');
     };
+
+    const columns: ColumnDef<Post>[] = [
+        {
+            id: 'title',
+            accessorFn: (post) => post.title,
+            header: 'Artikel',
+            cell: ({ row }) => {
+                const post = row.original;
+
+                return (
+                    <div className="flex items-center gap-3">
+                        {post.image_url && (
+                            <img
+                                src={post.image_url}
+                                alt={post.title}
+                                className="h-12 w-20 shrink-0 rounded-lg object-cover"
+                            />
+                        )}
+                        <p className="line-clamp-2 font-semibold text-gray-900">
+                            {post.title}
+                        </p>
+                    </div>
+                );
+            },
+        },
+        {
+            id: 'category',
+            accessorFn: (post) => post.category?.name ?? '',
+            header: 'Kategori',
+            cell: ({ row }) => (
+                <span className="text-gray-600">
+                    {row.original.category?.name ?? 'Tanpa kategori'}
+                </span>
+            ),
+        },
+        {
+            id: 'author',
+            accessorFn: (post) => post.author ?? '',
+            header: 'Penulis',
+            cell: ({ row }) => (
+                <span className="text-gray-600">
+                    {row.original.author ?? 'Tanpa penulis'}
+                </span>
+            ),
+        },
+        {
+            id: 'published_at',
+            accessorFn: (post) => post.published_at ?? '',
+            header: 'Tanggal Terbit',
+            cell: ({ row }) => (
+                <span className="whitespace-nowrap text-gray-500">
+                    {formatDate(row.original.published_at)}
+                </span>
+            ),
+        },
+        {
+            id: 'is_published',
+            accessorFn: (post) => post.is_published,
+            header: 'Status',
+            cell: ({ row }) =>
+                row.original.is_published ? (
+                    <span className="inline-flex rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                        Terbit
+                    </span>
+                ) : (
+                    <span className="inline-flex rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
+                        Draft
+                    </span>
+                ),
+        },
+        {
+            id: 'actions',
+            header: 'Aksi',
+            enableSorting: false,
+            cell: ({ row }) => (
+                <div className="flex items-center justify-end gap-2">
+                    <Link
+                        href={`/admin/posts/${row.original.id}/edit`}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3.5 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                    >
+                        <Pencil className="h-4 w-4" /> Edit
+                    </Link>
+                    <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => remove(row.original)}
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                </div>
+            ),
+        },
+    ];
 
     return (
         <>
@@ -111,192 +206,67 @@ export default function AdminPosts({ posts }: Props) {
                     </Link>
                 </div>
 
-                {/* Toolbar: Search & Filter */}
-                <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-                    <div className="flex flex-col gap-3 md:flex-row md:items-center">
-                        {/* Search */}
-                        <div className="relative flex-1">
-                            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                            <input
-                                type="text"
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                placeholder="Cari judul, penulis, atau kategori..."
-                                className="w-full rounded-lg border border-gray-300 py-2 pr-9 pl-9 text-sm text-gray-900 transition outline-none focus:border-[#4b552a] focus:ring-1 focus:ring-[#4b552a]"
-                            />
-                            {search && (
+                <DataTable
+                    columns={columns}
+                    data={filtered}
+                    totalCount={posts.length}
+                    minWidthClass="min-w-[860px]"
+                    emptyMessage={
+                        posts.length === 0
+                            ? 'Belum ada artikel. Klik "Tambah Artikel".'
+                            : 'Tidak ada artikel yang cocok dengan filter/pencarian.'
+                    }
+                    search={{
+                        value: search,
+                        onChange: setSearch,
+                        placeholder: 'Cari judul, penulis, atau kategori...',
+                    }}
+                    toolbar={
+                        <>
+                            <select
+                                value={status}
+                                onChange={(event) =>
+                                    setStatus(
+                                        event.target.value as StatusFilter,
+                                    )
+                                }
+                                className="h-9 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-700 transition outline-none focus:border-[#4b552a] focus:ring-1 focus:ring-[#4b552a]"
+                            >
+                                <option value="all">Semua Status</option>
+                                <option value="published">Terbit</option>
+                                <option value="draft">Draft</option>
+                            </select>
+
+                            <select
+                                value={categoryId}
+                                onChange={(event) =>
+                                    setCategoryId(event.target.value)
+                                }
+                                className="h-9 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-700 transition outline-none focus:border-[#4b552a] focus:ring-1 focus:ring-[#4b552a]"
+                            >
+                                <option value="all">Semua Kategori</option>
+                                {categories.map((category) => (
+                                    <option
+                                        key={category.id}
+                                        value={category.id}
+                                    >
+                                        {category.name}
+                                    </option>
+                                ))}
+                            </select>
+
+                            {hasActiveFilter && (
                                 <button
                                     type="button"
-                                    onClick={() => setSearch('')}
-                                    className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                    aria-label="Hapus pencarian"
+                                    onClick={resetFilters}
+                                    className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
                                 >
-                                    <X className="h-4 w-4" />
+                                    <X className="h-4 w-4" /> Reset
                                 </button>
                             )}
-                        </div>
-
-                        {/* Status */}
-                        <select
-                            value={status}
-                            onChange={(e) =>
-                                setStatus(e.target.value as StatusFilter)
-                            }
-                            className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 transition outline-none focus:border-[#4b552a] focus:ring-1 focus:ring-[#4b552a]"
-                        >
-                            <option value="all">Semua Status</option>
-                            <option value="published">Terbit</option>
-                            <option value="draft">Draft</option>
-                        </select>
-
-                        {/* Kategori */}
-                        <select
-                            value={categoryId}
-                            onChange={(e) => setCategoryId(e.target.value)}
-                            className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 transition outline-none focus:border-[#4b552a] focus:ring-1 focus:ring-[#4b552a]"
-                        >
-                            <option value="all">Semua Kategori</option>
-                            {categories.map((c) => (
-                                <option key={c.id} value={c.id}>
-                                    {c.name}
-                                </option>
-                            ))}
-                        </select>
-
-                        {/* Reset */}
-                        {hasActiveFilter && (
-                            <button
-                                type="button"
-                                onClick={resetFilters}
-                                className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-                            >
-                                <X className="h-4 w-4" /> Reset
-                            </button>
-                        )}
-                    </div>
-
-                    {hasActiveFilter && (
-                        <p className="mt-3 text-xs text-gray-500">
-                            Menampilkan {filtered.length} dari {posts.length}{' '}
-                            artikel.
-                        </p>
-                    )}
-                </div>
-
-                {/* List */}
-                {filtered.length === 0 ? (
-                    <div className="rounded-xl border border-dashed border-gray-300 bg-white p-10 text-center text-sm text-gray-500">
-                        {posts.length === 0
-                            ? 'Belum ada artikel. Klik "Tambah Artikel".'
-                            : 'Tidak ada artikel yang cocok dengan filter/pencarian.'}
-                    </div>
-                ) : (
-                    <>
-                        <div className="space-y-3">
-                            {visible.map((post) => (
-                                <div
-                                    key={post.id}
-                                    className="flex flex-wrap items-start justify-between gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
-                                >
-                                    <div className="flex min-w-0 items-start gap-4">
-                                        {post.image_url && (
-                                            <img
-                                                src={post.image_url}
-                                                alt={post.title}
-                                                className="h-16 w-24 rounded-lg object-cover"
-                                            />
-                                        )}
-                                        <div className="min-w-0">
-                                            <p className="font-semibold text-gray-900">
-                                                {post.title}
-                                            </p>
-                                            <p className="text-sm text-gray-500">
-                                                {post.category?.name ??
-                                                    'Tanpa kategori'}{' '}
-                                                ·{' '}
-                                                {post.author ?? 'Tanpa penulis'}
-                                            </p>
-                                            <p className="text-xs text-gray-400">
-                                                {formatDate(post.published_at)}{' '}
-                                                ·{' '}
-                                                {post.is_published ? (
-                                                    <span className="font-medium text-green-600">
-                                                        Terbit
-                                                    </span>
-                                                ) : (
-                                                    <span className="font-medium text-red-500">
-                                                        Draft
-                                                    </span>
-                                                )}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex shrink-0 items-center gap-2">
-                                        <Link
-                                            href={`/admin/posts/${post.id}/edit`}
-                                            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3.5 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-                                        >
-                                            <Pencil className="h-4 w-4" /> Edit
-                                        </Link>
-                                        <Button
-                                            type="button"
-                                            variant="destructive"
-                                            size="sm"
-                                            onClick={() => remove(post)}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Show All / Pagination control */}
-                        {!showAll && filtered.length > perPage && (
-                            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-600 shadow-sm">
-                                <span>
-                                    Menampilkan {visible.length} dari{' '}
-                                    {filtered.length} artikel
-                                </span>
-                                <div className="flex items-center gap-2">
-                                    <select
-                                        value={perPage}
-                                        onChange={(e) => {
-                                            setPerPage(Number(e.target.value));
-                                            setShowAll(false);
-                                        }}
-                                        className="rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-700 outline-none focus:border-[#4b552a] focus:ring-1 focus:ring-[#4b552a]"
-                                    >
-                                        <option value={5}>5 / hal</option>
-                                        <option value={10}>10 / hal</option>
-                                        <option value={25}>25 / hal</option>
-                                        <option value={50}>50 / hal</option>
-                                    </select>
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowAll(true)}
-                                        className="rounded-lg border border-gray-300 px-3 py-1.5 font-medium text-gray-700 transition hover:bg-gray-50"
-                                    >
-                                        Tampilkan semua
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-
-                        {showAll && filtered.length > perPage && (
-                            <div className="flex justify-end">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowAll(false)}
-                                    className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-                                >
-                                    Sembunyikan (tampilkan {perPage})
-                                </button>
-                            </div>
-                        )}
-                    </>
-                )}
+                        </>
+                    }
+                />
             </div>
         </>
     );

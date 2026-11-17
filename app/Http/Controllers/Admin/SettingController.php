@@ -31,21 +31,7 @@ class SettingController extends Controller
         'landing_stat_2_label',
         'landing_stat_3_value',
         'landing_stat_3_label',
-        'about_years',
-        'about_years_label',
-        'about_eyebrow',
-        'about_title',
-        'about_text',
-        'vision',
-        'mission',
         'footer_description',
-        'about_page_badge',
-        'about_page_title',
-        'about_page_intro',
-        'about_story_quote',
-        'about_story',
-        'peternakan_fattening_description',
-        'peternakan_breeding_description',
     ];
 
     /**
@@ -53,9 +39,6 @@ class SettingController extends Controller
      */
     private const IMAGE_KEYS = [
         'logo',
-        'about_image',
-        'about_values_image',
-        'about_page_image',
     ];
 
     public function edit(): Response

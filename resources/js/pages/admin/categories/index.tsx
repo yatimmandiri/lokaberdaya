@@ -1,5 +1,9 @@
 import { Head } from '@inertiajs/react';
-import { CrudManager, type CrudField } from '@/components/admin/crud-manager';
+import {
+    CrudManager,
+    type CrudField,
+    type CrudTableColumn,
+} from '@/components/admin/crud-manager';
 import type { PostCategory } from '@/types/content';
 
 type Props = {
@@ -14,6 +18,29 @@ const fields: CrudField[] = [
         placeholder: 'Kosongkan untuk otomatis',
     },
     { name: 'sort_order', label: 'Urutan', type: 'number' },
+];
+
+const tableColumns: CrudTableColumn<PostCategory>[] = [
+    {
+        key: 'name',
+        label: 'Nama Kategori',
+        render: (category) => (
+            <span className="font-semibold text-gray-900">{category.name}</span>
+        ),
+    },
+    {
+        key: 'slug',
+        label: 'Slug',
+        render: (category) => (
+            <span className="text-gray-500">/{category.slug}</span>
+        ),
+    },
+    {
+        key: 'posts_count',
+        label: 'Artikel',
+        render: (category) => `${category.posts_count ?? 0} artikel`,
+    },
+    { key: 'sort_order', label: 'Urutan' },
 ];
 
 export default function AdminCategories({ categories }: Props) {
@@ -32,6 +59,7 @@ export default function AdminCategories({ categories }: Props) {
                     deleteUrl={(category) => `/admin/categories/${category.id}`}
                     itemTitle={(category) => category.name}
                     createButtonLabel="Tambah Kategori"
+                    tableColumns={tableColumns}
                     renderItem={(category) => (
                         <div>
                             <p className="font-semibold text-gray-900">

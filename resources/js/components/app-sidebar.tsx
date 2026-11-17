@@ -9,6 +9,7 @@ import {
     MapPin,
     MessageSquareQuote,
     Newspaper,
+    FileText,
     Settings,
     Sprout,
     Tags,
@@ -28,22 +29,35 @@ import {
 } from '@/components/ui/sidebar';
 import type { NavItem } from '@/types';
 
-const contentNavItems: NavItem[] = [
+// Urutan grup mengikuti halaman user: Beranda, Tentang Kami, Blog, Program,
+// Hubungi Kami, dan seterusnya.
+const homeNavItems: NavItem[] = [
     { title: 'Slide Hero', href: '/admin/hero-slides', icon: ImageIcon },
-    { title: 'Program', href: '/admin/programs', icon: Sprout },
-    { title: 'Wilayah UMKM', href: '/admin/umkm', icon: MapPin },
-    { title: 'Artikel Blog', href: '/admin/posts', icon: Newspaper },
-    { title: 'Kategori Blog', href: '/admin/categories', icon: Tags },
-];
-
-const appearanceNavItems: NavItem[] = [
     {
         title: 'Testimoni',
         href: '/admin/testimonials',
         icon: MessageSquareQuote,
     },
     { title: 'Mitra', href: '/admin/partners', icon: Handshake },
+];
+
+const aboutNavItems: NavItem[] = [
+    { title: 'Halaman Tentang', href: '/admin/about', icon: FileText },
     { title: 'Nilai Perjuangan', href: '/admin/core-values', icon: Leaf },
+];
+
+const blogNavItems: NavItem[] = [
+    { title: 'Artikel Blog', href: '/admin/posts', icon: Newspaper },
+    { title: 'Kategori Blog', href: '/admin/categories', icon: Tags },
+];
+
+const programNavItems: NavItem[] = [
+    { title: 'Program Pemberdayaan', href: '/admin/programs', icon: Sprout },
+    { title: 'Wilayah UMKM', href: '/admin/umkm', icon: MapPin },
+];
+
+const contactNavItems: NavItem[] = [
+    { title: 'Pesan Masuk', href: '/admin/messages', icon: Mail },
 ];
 
 const settingsNavItems: NavItem[] = [
@@ -63,13 +77,12 @@ export function AppSidebar() {
 
     const mainNavItems: NavItem[] = [
         { title: 'Dashboard', href: '/admin', icon: LayoutGrid },
-        {
-            title: 'Pesan Masuk',
-            href: '/admin/messages',
-            icon: Mail,
-            badge: unreadMessages,
-        },
     ];
+
+    const contactItems: NavItem[] = contactNavItems.map((item) => ({
+        ...item,
+        badge: unreadMessages,
+    }));
 
     return (
         <Sidebar
@@ -91,8 +104,11 @@ export function AppSidebar() {
 
             <SidebarContent className="px-2 py-1">
                 <NavMain items={mainNavItems} label="Utama" />
-                <NavMain items={contentNavItems} label="Konten" />
-                <NavMain items={appearanceNavItems} label="Tampilan" />
+                <NavMain items={homeNavItems} label="Beranda" />
+                <NavMain items={aboutNavItems} label="Tentang Kami" />
+                <NavMain items={blogNavItems} label="Blog" />
+                <NavMain items={programNavItems} label="Program" />
+                <NavMain items={contactItems} label="Hubungi Kami" />
                 <NavMain items={settingsNavItems} label="Pengaturan" />
             </SidebarContent>
 

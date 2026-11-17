@@ -185,18 +185,7 @@ export default function Navbar() {
                             </>
                         ) : (
                             <>
-                                <Link
-                                    href="/login"
-                                    className="text-sm font-medium text-white transition hover:text-[#f7ffda] md:text-[15px]"
-                                >
-                                    Log in
-                                </Link>
-                                <Link
-                                    href="/register"
-                                    className="rounded-md bg-[#f7ffda] px-4 py-2 text-sm font-bold text-[#4b552a] shadow-sm transition hover:bg-white md:text-[15px]"
-                                >
-                                    Register
-                                </Link>
+                                
                             </>
                         )}
                     </div>

@@ -44,6 +44,7 @@ export default function AdminCoreValues({ values }: Props) {
                     deleteUrl={(value) => `/admin/core-values/${value.id}`}
                     itemTitle={(value) => value.title}
                     createButtonLabel="Tambah Nilai"
+                    layout="list"
                     renderItem={(value) => (
                         <div>
                             <p className="font-semibold text-gray-900">

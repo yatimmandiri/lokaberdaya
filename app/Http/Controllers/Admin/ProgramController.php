@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Program;
+use App\Models\SiteSetting;
 use App\Support\ImageUploader;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,8 +26,14 @@ class ProgramController extends Controller
 
     public function edit(Program $program): Response
     {
+        $settings = SiteSetting::allValues();
+
         return Inertia::render('admin/programs/edit', [
             'program' => $program->load(['stats', 'activities']),
+            'peternakanSettings' => $program->slug === 'peternakan' ? [
+                'peternakan_fattening_description' => $settings['peternakan_fattening_description'] ?? '',
+                'peternakan_breeding_description' => $settings['peternakan_breeding_description'] ?? '',
+            ] : null,
         ]);
     }
 
@@ -47,6 +54,15 @@ class ProgramController extends Controller
             'stats.*.icon' => ['nullable', 'string', 'max:255'],
             'stats.*.sort_order' => ['nullable', 'integer', 'min:0'],
         ]);
+
+        $peternakanSettings = null;
+
+        if ($program->slug === 'peternakan') {
+            $peternakanSettings = $request->validate([
+                'peternakan_fattening_description' => ['nullable', 'string'],
+                'peternakan_breeding_description' => ['nullable', 'string'],
+            ]);
+        }
 
         $data = [
             'title' => $validated['title'],
@@ -80,6 +96,13 @@ class ProgramController extends Controller
                 'value' => $value,
                 'icon' => $stat['icon'] ?? null,
                 'sort_order' => (int) ($stat['sort_order'] ?? 0),
+            ]);
+        }
+
+        if ($peternakanSettings !== null) {
+            SiteSetting::setMany([
+                'peternakan_fattening_description' => $peternakanSettings['peternakan_fattening_description'] ?? null,
+                'peternakan_breeding_description' => $peternakanSettings['peternakan_breeding_description'] ?? null,
             ]);
         }
 

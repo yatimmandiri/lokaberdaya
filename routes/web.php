@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AboutPageController;
 use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
 use App\Http\Controllers\Admin\CoreValueController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -47,6 +48,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/', DashboardController::class)->name('dashboard');
     Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+    Route::get('/about', [AboutPageController::class, 'edit'])->name('about.edit');
+    Route::put('/about', [AboutPageController::class, 'update'])->name('about.update');
 
     Route::resource('hero-slides', HeroSlideController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('programs', AdminProgramController::class)->only(['index', 'edit', 'update']);

@@ -1,18 +1,18 @@
 import { Head, router } from '@inertiajs/react';
+import { type ColumnDef } from '@tanstack/react-table';
 import {
     Check,
     ChevronDown,
     ChevronUp,
     Clock,
-    Inbox,
     Mail,
     MailOpen,
     Phone,
-    Search,
     Trash2,
     X,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { DataTable } from '@/components/admin/data-table';
 import { Button } from '@/components/ui/button';
 import type { ContactMessage } from '@/types/content';
 
@@ -121,6 +121,157 @@ export default function AdminMessages({ messages }: Props) {
 
     const hasActiveFilter = search.trim() !== '' || filter !== 'all';
 
+    const columns: ColumnDef<ContactMessage>[] = [
+        {
+            id: 'name',
+            accessorFn: (message) => message.name,
+            header: 'Pengirim',
+            cell: ({ row }) => {
+                const message = row.original;
+
+                return (
+                    <div className="flex items-center gap-3">
+                        <div
+                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                                message.is_read
+                                    ? 'bg-gray-100 text-gray-500'
+                                    : 'bg-[#4b552a] text-white'
+                            }`}
+                        >
+                            {initials(message.name) || (
+                                <Mail className="h-4 w-4" />
+                            )}
+                        </div>
+                        <div className="min-w-0">
+                            <p className="font-semibold text-gray-900">
+                                {message.name}
+                            </p>
+                            <a
+                                href={`mailto:${message.email}`}
+                                className="block max-w-[220px] truncate text-xs text-gray-500 hover:text-[#4b552a] hover:underline"
+                            >
+                                {message.email}
+                            </a>
+                            {message.phone && (
+                                <span className="mt-0.5 flex items-center gap-1 text-xs text-gray-400">
+                                    <Phone className="h-3 w-3" />
+                                    {message.phone}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                );
+            },
+        },
+        {
+            id: 'message',
+            accessorFn: (message) => message.message,
+            header: 'Pesan',
+            meta: { className: 'max-w-[420px]' },
+            cell: ({ row }) => {
+                const message = row.original;
+                const expanded = expandedId === message.id;
+
+                return (
+                    <div>
+                        <p className="font-medium text-gray-900">
+                            {message.subject || 'Tanpa subjek'}
+                        </p>
+                        <p
+                            className={`mt-1 text-sm whitespace-pre-line text-gray-600 ${
+                                expanded ? '' : 'line-clamp-2'
+                            }`}
+                        >
+                            {message.message}
+                        </p>
+                        {message.message.length > 180 && (
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setExpandedId(expanded ? null : message.id)
+                                }
+                                className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-[#4b552a] hover:underline"
+                            >
+                                {expanded ? (
+                                    <>
+                                        <ChevronUp className="h-3.5 w-3.5" />
+                                        Ringkas
+                                    </>
+                                ) : (
+                                    <>
+                                        <ChevronDown className="h-3.5 w-3.5" />
+                                        Selengkapnya
+                                    </>
+                                )}
+                            </button>
+                        )}
+                    </div>
+                );
+            },
+        },
+        {
+            id: 'is_read',
+            accessorFn: (message) => message.is_read,
+            header: 'Status',
+            cell: ({ row }) =>
+                row.original.is_read ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+                        <MailOpen className="h-3 w-3" /> Dibaca
+                    </span>
+                ) : (
+                    <span className="inline-flex rounded-full bg-[#4b552a] px-2 py-0.5 text-[10px] font-bold tracking-wide text-white uppercase">
+                        Baru
+                    </span>
+                ),
+        },
+        {
+            id: 'created_at',
+            accessorFn: (message) => message.created_at,
+            header: 'Waktu',
+            cell: ({ row }) => (
+                <span className="inline-flex items-center gap-1 text-xs whitespace-nowrap text-gray-500">
+                    <Clock className="h-3 w-3" />
+                    {formatDateTime(row.original.created_at)}
+                </span>
+            ),
+        },
+        {
+            id: 'actions',
+            header: 'Aksi',
+            enableSorting: false,
+            cell: ({ row }) => (
+                <div className="flex items-center justify-end gap-2">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toggleRead(row.original)}
+                    >
+                        {row.original.is_read ? (
+                            <>
+                                <Mail className="mr-1 h-4 w-4" />
+                                Tandai belum dibaca
+                            </>
+                        ) : (
+                            <>
+                                <Check className="mr-1 h-4 w-4" />
+                                Tandai dibaca
+                            </>
+                        )}
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => remove(row.original)}
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                </div>
+            ),
+        },
+    ];
+
     return (
         <>
             <Head title="Pesan Masuk" />
@@ -164,33 +315,24 @@ export default function AdminMessages({ messages }: Props) {
                     </div>
                 </div>
 
-                {/* Toolbar: pencarian & filter */}
-                <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                        <div className="relative flex-1 lg:max-w-md">
-                            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                            <input
-                                type="text"
-                                value={search}
-                                onChange={(event) =>
-                                    setSearch(event.target.value)
-                                }
-                                placeholder="Cari nama, email, subjek, atau isi pesan..."
-                                className="h-10 w-full rounded-lg border border-gray-300 bg-white pr-9 pl-9 text-sm text-gray-900 transition outline-none focus:border-[#4b552a] focus:ring-1 focus:ring-[#4b552a]"
-                            />
-                            {search && (
-                                <button
-                                    type="button"
-                                    onClick={() => setSearch('')}
-                                    className="absolute top-1/2 right-2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
-                                    aria-label="Hapus pencarian"
-                                >
-                                    <X className="h-4 w-4" />
-                                </button>
-                            )}
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-2">
+                <DataTable
+                    columns={columns}
+                    data={filtered}
+                    totalCount={counts.all}
+                    minWidthClass="min-w-[900px]"
+                    emptyMessage={
+                        counts.all === 0
+                            ? 'Belum ada pesan masuk.'
+                            : 'Tidak ada pesan yang cocok dengan filter/pencarian.'
+                    }
+                    search={{
+                        value: search,
+                        onChange: setSearch,
+                        placeholder:
+                            'Cari nama, email, subjek, atau isi pesan...',
+                    }}
+                    toolbar={
+                        <>
                             {filterTabs.map((tab) => (
                                 <button
                                     key={tab.key}
@@ -214,7 +356,6 @@ export default function AdminMessages({ messages }: Props) {
                                     </span>
                                 </button>
                             ))}
-
                             {hasActiveFilter && (
                                 <button
                                     type="button"
@@ -222,198 +363,14 @@ export default function AdminMessages({ messages }: Props) {
                                         setSearch('');
                                         setFilter('all');
                                     }}
-                                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                                    className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
                                 >
                                     <X className="h-4 w-4" /> Reset
                                 </button>
                             )}
-                        </div>
-                    </div>
-
-                    {hasActiveFilter && (
-                        <p className="mt-3 text-xs text-gray-500">
-                            Menampilkan {filtered.length} dari {counts.all}{' '}
-                            pesan.
-                        </p>
-                    )}
-                </div>
-
-                {/* Daftar pesan */}
-                {filtered.length === 0 ? (
-                    <div className="rounded-xl border border-dashed border-gray-300 bg-white p-12 text-center">
-                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-50 text-gray-300">
-                            <Inbox className="h-5 w-5" />
-                        </div>
-                        <p className="text-sm text-gray-500">
-                            {counts.all === 0
-                                ? 'Belum ada pesan masuk.'
-                                : 'Tidak ada pesan yang cocok dengan filter/pencarian.'}
-                        </p>
-                    </div>
-                ) : (
-                    <div className="space-y-3">
-                        {filtered.map((message) => {
-                            const expanded = expandedId === message.id;
-
-                            return (
-                                <article
-                                    key={message.id}
-                                    className={`rounded-xl border bg-white shadow-sm transition ${
-                                        message.is_read
-                                            ? 'border-gray-200'
-                                            : 'border-[#cfdcae] ring-1 ring-[#eff5da]'
-                                    }`}
-                                >
-                                    <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-start sm:justify-between">
-                                        <div className="flex min-w-0 flex-1 gap-3">
-                                            <div
-                                                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                                                    message.is_read
-                                                        ? 'bg-gray-100 text-gray-500'
-                                                        : 'bg-[#4b552a] text-white'
-                                                }`}
-                                            >
-                                                {initials(message.name) || (
-                                                    <Mail className="h-4 w-4" />
-                                                )}
-                                            </div>
-
-                                            <div className="min-w-0 flex-1">
-                                                <div className="flex flex-wrap items-center gap-2">
-                                                    <p className="font-semibold text-gray-900">
-                                                        {message.subject ||
-                                                            'Tanpa subjek'}
-                                                    </p>
-                                                    {!message.is_read && (
-                                                        <span className="rounded-full bg-[#4b552a] px-2 py-0.5 text-[10px] font-bold tracking-wide text-white uppercase">
-                                                            Baru
-                                                        </span>
-                                                    )}
-                                                </div>
-
-                                                <p className="mt-0.5 text-sm text-gray-500">
-                                                    {message.name}
-                                                    <span className="mx-1.5 text-gray-300">
-                                                        ·
-                                                    </span>
-                                                    <a
-                                                        href={`mailto:${message.email}`}
-                                                        className="hover:text-[#4b552a] hover:underline"
-                                                    >
-                                                        {message.email}
-                                                    </a>
-                                                </p>
-
-                                                {message.phone && (
-                                                    <p className="mt-1 flex items-center gap-1 text-xs text-gray-500">
-                                                        <Phone className="h-3 w-3" />
-                                                        {message.phone}
-                                                    </p>
-                                                )}
-
-                                                <p
-                                                    className={`mt-2 text-sm whitespace-pre-line text-gray-700 ${
-                                                        expanded
-                                                            ? ''
-                                                            : 'line-clamp-3'
-                                                    }`}
-                                                >
-                                                    {message.message}
-                                                </p>
-
-                                                <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-gray-400">
-                                                    <span className="inline-flex items-center gap-1">
-                                                        <Clock className="h-3 w-3" />
-                                                        {formatDateTime(
-                                                            message.created_at,
-                                                        )}
-                                                    </span>
-
-                                                    {message.message.length >
-                                                        180 && (
-                                                        <button
-                                                            type="button"
-                                                            onClick={() =>
-                                                                setExpandedId(
-                                                                    expanded
-                                                                        ? null
-                                                                        : message.id,
-                                                                )
-                                                            }
-                                                            className="inline-flex items-center gap-1 font-medium text-[#4b552a] hover:underline"
-                                                        >
-                                                            {expanded ? (
-                                                                <>
-                                                                    <ChevronUp className="h-3.5 w-3.5" />
-                                                                    Ringkas
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <ChevronDown className="h-3.5 w-3.5" />
-                                                                    Selengkapnya
-                                                                </>
-                                                            )}
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex shrink-0 flex-wrap items-center gap-2 sm:flex-col sm:items-end">
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() =>
-                                                    toggleRead(message)
-                                                }
-                                            >
-                                                {message.is_read ? (
-                                                    <>
-                                                        <Mail className="mr-1 h-4 w-4" />
-                                                        Tandai belum dibaca
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <Check className="mr-1 h-4 w-4" />
-                                                        Tandai dibaca
-                                                    </>
-                                                )}
-                                            </Button>
-
-                                            <Button
-                                                type="button"
-                                                variant="destructive"
-                                                size="sm"
-                                                onClick={() => remove(message)}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    </div>
-
-                                    {expanded && (
-                                        <div className="flex flex-wrap items-center gap-4 border-t border-gray-100 bg-gray-50/60 px-4 py-3 text-xs text-gray-500">
-                                            <span className="inline-flex items-center gap-1">
-                                                <MailOpen className="h-3.5 w-3.5" />
-                                                Status:{' '}
-                                                {message.is_read
-                                                    ? 'Sudah dibaca'
-                                                    : 'Belum dibaca'}
-                                            </span>
-                                            {message.phone && (
-                                                <span className="inline-flex items-center gap-1">
-                                                    <Phone className="h-3.5 w-3.5" />
-                                                    {message.phone}
-                                                </span>
-                                            )}
-                                        </div>
-                                    )}
-                                </article>
-                            );
-                        })}
-                    </div>
-                )}
+                        </>
+                    }
+                />
             </div>
         </>
     );

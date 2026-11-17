@@ -8,6 +8,10 @@ import type { Program } from '@/types/content';
 
 type Props = {
     program: Program;
+    peternakanSettings?: {
+        peternakan_fattening_description: string;
+        peternakan_breeding_description: string;
+    } | null;
 };
 
 type StatInput = {
@@ -32,7 +36,10 @@ const labelClass = 'mb-1.5 block';
 const textareaClass =
     'w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-[#4b552a] focus:ring-2 focus:ring-[#4b552a]/30 focus:outline-none';
 
-export default function AdminProgramEdit({ program }: Props) {
+export default function AdminProgramEdit({
+    program,
+    peternakanSettings,
+}: Props) {
     const form = useForm({
         title: program.title,
         slug: program.slug,
@@ -48,6 +55,10 @@ export default function AdminProgramEdit({ program }: Props) {
             icon: stat.icon ?? 'users',
             sort_order: stat.sort_order,
         })),
+        peternakan_fattening_description:
+            peternakanSettings?.peternakan_fattening_description ?? '',
+        peternakan_breeding_description:
+            peternakanSettings?.peternakan_breeding_description ?? '',
     });
 
     const submit = (event: FormEvent) => {
@@ -364,6 +375,86 @@ export default function AdminProgramEdit({ program }: Props) {
                         </div>
                     )}
                 </section>
+
+                {peternakanSettings && (
+                    <section className="rounded-xl border border-[#dbe5c4] bg-white p-5 shadow-sm">
+                        <h2 className="mb-1 border-b border-gray-100 pb-3 text-lg font-semibold text-gray-900">
+                            Konten Halaman Peternakan
+                        </h2>
+                        <p className="mt-2 mb-4 text-sm text-gray-500">
+                            Teks khusus yang tampil di halaman Program
+                            Peternakan (bagian penggemukan dan pembibitan).
+                        </p>
+
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div>
+                                <Label
+                                    htmlFor="peternakan_fattening_description"
+                                    className={labelClass}
+                                >
+                                    Deskripsi Penggemukan
+                                </Label>
+                                <textarea
+                                    id="peternakan_fattening_description"
+                                    value={
+                                        form.data
+                                            .peternakan_fattening_description
+                                    }
+                                    onChange={(event) =>
+                                        form.setData(
+                                            'peternakan_fattening_description',
+                                            event.target.value,
+                                        )
+                                    }
+                                    rows={5}
+                                    className={textareaClass}
+                                />
+                                {form.errors
+                                    .peternakan_fattening_description && (
+                                    <p className="mt-1 text-sm text-red-500">
+                                        {
+                                            form.errors
+                                                .peternakan_fattening_description
+                                        }
+                                    </p>
+                                )}
+                            </div>
+
+                            <div>
+                                <Label
+                                    htmlFor="peternakan_breeding_description"
+                                    className={labelClass}
+                                >
+                                    Deskripsi Pembibitan
+                                </Label>
+                                <textarea
+                                    id="peternakan_breeding_description"
+                                    value={
+                                        form.data
+                                            .peternakan_breeding_description
+                                    }
+                                    onChange={(event) =>
+                                        form.setData(
+                                            'peternakan_breeding_description',
+                                            event.target.value,
+                                        )
+                                    }
+                                    rows={5}
+                                    className={textareaClass}
+                                />
+                                {form.errors
+                                    .peternakan_breeding_description && (
+                                    <p className="mt-1 text-sm text-red-500">
+                                        {
+                                            form.errors
+                                                .peternakan_breeding_description
+                                        }
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    </section>
+                )}
 
                 <div className="flex justify-end">
                     <Button type="submit" disabled={form.processing}>

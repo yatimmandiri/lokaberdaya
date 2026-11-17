@@ -1,5 +1,10 @@
 import { Head } from '@inertiajs/react';
-import { CrudManager, type CrudField } from '@/components/admin/crud-manager';
+import {
+    CrudManager,
+    StatusBadge,
+    type CrudField,
+    type CrudTableColumn,
+} from '@/components/admin/crud-manager';
 import type { Testimonial } from '@/types/content';
 
 type Props = {
@@ -26,6 +31,48 @@ const fields: CrudField[] = [
     { name: 'is_active', label: 'Tampilkan di landing page', type: 'checkbox' },
 ];
 
+const tableColumns: CrudTableColumn<Testimonial>[] = [
+    {
+        key: 'name',
+        label: 'Nama',
+        render: (testimonial) => (
+            <div className="flex items-center gap-3">
+                {testimonial.photo_url && (
+                    <img
+                        src={testimonial.photo_url}
+                        alt={testimonial.name}
+                        className="h-10 w-10 shrink-0 rounded-full object-cover"
+                    />
+                )}
+                <div className="min-w-0">
+                    <p className="font-semibold text-gray-900">
+                        {testimonial.name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                        {testimonial.role || '-'}
+                    </p>
+                </div>
+            </div>
+        ),
+    },
+    {
+        key: 'quote',
+        label: 'Isi Testimoni',
+        className: 'max-w-[360px]',
+        render: (testimonial) => (
+            <p className="line-clamp-2 text-gray-600 italic">
+                "{testimonial.quote}"
+            </p>
+        ),
+    },
+    { key: 'sort_order', label: 'Urutan' },
+    {
+        key: 'is_active',
+        label: 'Status',
+        render: (testimonial) => <StatusBadge active={testimonial.is_active} />,
+    },
+];
+
 export default function AdminTestimonials({ testimonials }: Props) {
     return (
         <>
@@ -46,6 +93,7 @@ export default function AdminTestimonials({ testimonials }: Props) {
                     }
                     itemTitle={(testimonial) => testimonial.name}
                     createButtonLabel="Tambah Testimoni"
+                    tableColumns={tableColumns}
                     renderItem={(testimonial) => (
                         <div className="flex items-start gap-4">
                             {testimonial.photo_url && (

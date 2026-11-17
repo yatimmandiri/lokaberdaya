@@ -1,6 +1,8 @@
-import { type FormEvent, type ReactNode, useState } from 'react';
+import { type FormEvent, type ReactNode, useMemo, useState } from 'react';
 import { router, useForm } from '@inertiajs/react';
+import { type ColumnDef, type Row } from '@tanstack/react-table';
 import { Pencil, Plus, Trash2, X } from 'lucide-react';
+import { DataTable } from '@/components/admin/data-table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,6 +16,13 @@ export type CrudField = {
     options?: { value: string; label: string }[];
     help?: string;
     full?: boolean;
+};
+
+export type CrudTableColumn<T> = {
+    key: string;
+    label: string;
+    render?: (item: T) => ReactNode;
+    className?: string;
 };
 
 type Item = Record<string, any>;
@@ -31,6 +40,8 @@ type Props<T extends Item> = {
     itemTitle: (item: T) => string;
     createButtonLabel?: string;
     emptyMessage?: string;
+    layout?: 'table' | 'list';
+    tableColumns?: CrudTableColumn<T>[];
 };
 
 function initialData(fields: CrudField[], item?: Item): Item {
@@ -136,7 +147,85 @@ function FieldInput({
     );
 }
 
-function CrudRow<T extends Item>({
+function EditForm({
+    fields,
+    data,
+    errors,
+    setData,
+    onSubmit,
+    onCancel,
+    submitLabel = 'Simpan Perubahan',
+}: {
+    fields: CrudField[];
+    data: Item;
+    errors: Record<string, any>;
+    setData: (key: string, value: any) => void;
+    onSubmit: (event: FormEvent) => void;
+    onCancel?: () => void;
+    submitLabel?: string;
+}) {
+    return (
+        <form onSubmit={onSubmit} className="p-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                {fields.map((field) => (
+                    <FieldInput
+                        key={field.name}
+                        field={field}
+                        value={data[field.name]}
+                        error={errors[field.name] as string | undefined}
+                        onChange={(value) => setData(field.name, value)}
+                    />
+                ))}
+            </div>
+
+            <div className="mt-4 flex justify-end gap-2">
+                {onCancel && (
+                    <Button type="button" variant="outline" onClick={onCancel}>
+                        <X className="mr-1 h-4 w-4" /> Batal
+                    </Button>
+                )}
+                <Button type="submit">{submitLabel}</Button>
+            </div>
+        </form>
+    );
+}
+
+export function StatusBadge({ active }: { active: boolean }) {
+    return (
+        <span
+            className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                active
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-red-100 text-red-600'
+            }`}
+        >
+            {active ? 'Aktif' : 'Nonaktif'}
+        </span>
+    );
+}
+
+function cellContent<T extends Item>(
+    item: T,
+    column: CrudTableColumn<T>,
+): ReactNode {
+    if (column.render) {
+        return column.render(item);
+    }
+
+    const value = item[column.key];
+
+    if (typeof value === 'boolean') {
+        return <StatusBadge active={value} />;
+    }
+
+    if (value === null || value === undefined || value === '') {
+        return <span className="text-gray-400">-</span>;
+    }
+
+    return <span className="line-clamp-2 text-gray-700">{String(value)}</span>;
+}
+
+function CrudListRow<T extends Item>({
     item,
     fields,
     updateUrl,
@@ -221,35 +310,58 @@ function CrudRow<T extends Item>({
             </div>
 
             {editing && (
-                <form
-                    onSubmit={submit}
-                    className="border-t border-gray-100 bg-gray-50/60 p-4"
-                >
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        {fields.map((field) => (
-                            <FieldInput
-                                key={field.name}
-                                field={field}
-                                value={form.data[field.name]}
-                                error={
-                                    form.errors[field.name] as
-                                        | string
-                                        | undefined
-                                }
-                                onChange={(value) =>
-                                    form.setData(field.name, value)
-                                }
-                            />
-                        ))}
-                    </div>
-
-                    <div className="mt-4 flex justify-end">
-                        <Button type="submit" disabled={form.processing}>
-                            Simpan Perubahan
-                        </Button>
-                    </div>
-                </form>
+                <div className="border-t border-gray-100 bg-gray-50/60">
+                    <EditForm
+                        fields={fields}
+                        data={form.data}
+                        errors={form.errors}
+                        setData={form.setData}
+                        onSubmit={submit}
+                    />
+                </div>
             )}
+        </div>
+    );
+}
+
+function CrudEditPanel<T extends Item>({
+    itemTitle,
+    item,
+    fields,
+    updateUrl,
+    onDone,
+}: {
+    itemTitle: string;
+    item: T;
+    fields: CrudField[];
+    updateUrl: string;
+    onDone: () => void;
+}) {
+    const form = useForm<Item>(initialData(fields, item));
+
+    const submit = (event: FormEvent) => {
+        event.preventDefault();
+
+        form.put(updateUrl, {
+            forceFormData: true,
+            preserveScroll: true,
+            onSuccess: onDone,
+        });
+    };
+
+    return (
+        <div>
+            <p className="px-4 pt-4 text-sm font-semibold text-[#4b552a]">
+                Mengubah: {itemTitle}
+            </p>
+            <EditForm
+                fields={fields}
+                data={form.data}
+                errors={form.errors}
+                setData={form.setData}
+                onSubmit={submit}
+                onCancel={onDone}
+            />
         </div>
     );
 }
@@ -267,9 +379,93 @@ export function CrudManager<T extends Item>({
     itemTitle,
     createButtonLabel = 'Tambah',
     emptyMessage = 'Belum ada data.',
+    layout = 'table',
+    tableColumns,
 }: Props<T>) {
     const [showCreate, setShowCreate] = useState(false);
+    const [search, setSearch] = useState('');
     const createForm = useForm<Item>(initialData(createFields ?? fields));
+
+    const filteredItems = useMemo(() => {
+        const query = search.trim().toLowerCase();
+
+        if (!query) {
+            return items;
+        }
+
+        return items.filter((item) =>
+            Object.values(item).some(
+                (value) =>
+                    typeof value === 'string' &&
+                    value.toLowerCase().includes(query),
+            ),
+        );
+    }, [items, search]);
+
+    const columns: CrudTableColumn<T>[] =
+        tableColumns ??
+        fields
+            .filter((field) => field.type !== 'file')
+            .map((field) => ({
+                key: field.name,
+                label: field.label,
+            }));
+
+    const remove = (item: T) => {
+        if (
+            !window.confirm(
+                `Hapus "${itemTitle(item)}"? Tindakan ini tidak dapat dibatalkan.`,
+            )
+        ) {
+            return;
+        }
+
+        router.delete(deleteUrl(item), { preserveScroll: true });
+    };
+
+    const tableColumnsDefs: ColumnDef<T>[] = [
+        ...columns.map((column) => ({
+            id: column.key,
+            accessorFn: (row: T) => row[column.key],
+            header: column.label,
+            cell: ({ row }: { row: Row<T> }) =>
+                cellContent(row.original, column),
+            meta: { className: column.className },
+        })),
+        {
+            id: 'actions',
+            header: 'Aksi',
+            enableSorting: false,
+            cell: ({ row }: { row: Row<T> }) => (
+                <div className="flex items-center justify-end gap-2">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => row.toggleExpanded()}
+                    >
+                        {row.getIsExpanded() ? (
+                            <>
+                                <X className="mr-1 h-4 w-4" /> Batal
+                            </>
+                        ) : (
+                            <>
+                                <Pencil className="mr-1 h-4 w-4" /> Edit
+                            </>
+                        )}
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => remove(row.original)}
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                </div>
+            ),
+        },
+    ];
 
     const submitCreate = (event: FormEvent) => {
         event.preventDefault();
@@ -312,57 +508,67 @@ export function CrudManager<T extends Item>({
             </div>
 
             {showCreate && (
-                <form
-                    onSubmit={submitCreate}
-                    className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
-                >
+                <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
                     <h2 className="mb-4 text-lg font-semibold text-gray-900">
                         {createButtonLabel}
                     </h2>
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        {(createFields ?? fields).map((field) => (
-                            <FieldInput
-                                key={field.name}
-                                field={field}
-                                value={createForm.data[field.name]}
-                                error={
-                                    createForm.errors[field.name] as
-                                        | string
-                                        | undefined
-                                }
-                                onChange={(value) =>
-                                    createForm.setData(field.name, value)
-                                }
-                            />
-                        ))}
-                    </div>
-                    <div className="mt-4 flex justify-end">
-                        <Button type="submit" disabled={createForm.processing}>
-                            Simpan
-                        </Button>
-                    </div>
-                </form>
+                    <EditForm
+                        fields={createFields ?? fields}
+                        data={createForm.data}
+                        errors={createForm.errors}
+                        setData={createForm.setData}
+                        onSubmit={submitCreate}
+                        submitLabel="Simpan"
+                    />
+                </div>
             )}
 
-            <div className="space-y-3">
-                {items.length === 0 ? (
-                    <div className="rounded-xl border border-dashed border-gray-300 bg-white p-10 text-center text-sm text-gray-500">
-                        {emptyMessage}
-                    </div>
-                ) : (
-                    items.map((item) => (
-                        <CrudRow
-                            key={item.id}
+            {layout === 'table' ? (
+                <DataTable
+                    columns={tableColumnsDefs}
+                    data={filteredItems}
+                    totalCount={items.length}
+                    emptyMessage={
+                        items.length === 0
+                            ? emptyMessage
+                            : 'Tidak ada data yang cocok dengan pencarian.'
+                    }
+                    search={{
+                        value: search,
+                        onChange: setSearch,
+                        placeholder: `Cari ${title.toLowerCase()}...`,
+                    }}
+                    renderExpandedRow={(item, collapse) => (
+                        <CrudEditPanel
+                            itemTitle={itemTitle(item)}
                             item={item}
                             fields={fields}
                             updateUrl={updateUrl(item)}
-                            deleteUrl={deleteUrl(item)}
-                            itemTitle={itemTitle(item)}
-                            renderItem={renderItem}
+                            onDone={collapse}
                         />
-                    ))
-                )}
-            </div>
+                    )}
+                />
+            ) : (
+                <div className="space-y-3">
+                    {items.length === 0 ? (
+                        <div className="rounded-xl border border-dashed border-gray-300 bg-white p-10 text-center text-sm text-gray-500">
+                            {emptyMessage}
+                        </div>
+                    ) : (
+                        items.map((item) => (
+                            <CrudListRow
+                                key={item.id}
+                                item={item}
+                                fields={fields}
+                                updateUrl={updateUrl(item)}
+                                deleteUrl={deleteUrl(item)}
+                                itemTitle={itemTitle(item)}
+                                renderItem={renderItem}
+                            />
+                        ))
+                    )}
+                </div>
+            )}
         </div>
     );
 }

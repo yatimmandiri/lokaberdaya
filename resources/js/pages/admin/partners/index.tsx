@@ -1,5 +1,10 @@
 import { Head } from '@inertiajs/react';
-import { CrudManager, type CrudField } from '@/components/admin/crud-manager';
+import {
+    CrudManager,
+    StatusBadge,
+    type CrudField,
+    type CrudTableColumn,
+} from '@/components/admin/crud-manager';
 import type { Partner } from '@/types/content';
 
 type Props = {
@@ -19,6 +24,54 @@ const fields: CrudField[] = [
     { name: 'is_active', label: 'Tampilkan di landing page', type: 'checkbox' },
 ];
 
+const tableColumns: CrudTableColumn<Partner>[] = [
+    {
+        key: 'name',
+        label: 'Nama Mitra',
+        render: (partner) => (
+            <div className="flex items-center gap-3">
+                {partner.logo_url ? (
+                    <img
+                        src={partner.logo_url}
+                        alt={partner.name}
+                        className="h-10 w-auto max-w-[100px] rounded border border-gray-200 bg-white object-contain p-1"
+                    />
+                ) : (
+                    <div className="flex h-10 w-16 shrink-0 items-center justify-center rounded border border-dashed border-gray-300 text-[10px] text-gray-400">
+                        No logo
+                    </div>
+                )}
+                <span className="font-semibold text-gray-900">
+                    {partner.name}
+                </span>
+            </div>
+        ),
+    },
+    {
+        key: 'url',
+        label: 'Website',
+        render: (partner) =>
+            partner.url ? (
+                <a
+                    href={partner.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[#4b552a] hover:underline"
+                >
+                    {partner.url}
+                </a>
+            ) : (
+                <span className="text-gray-400">-</span>
+            ),
+    },
+    { key: 'sort_order', label: 'Urutan' },
+    {
+        key: 'is_active',
+        label: 'Status',
+        render: (partner) => <StatusBadge active={partner.is_active} />,
+    },
+];
+
 export default function AdminPartners({ partners }: Props) {
     return (
         <>
@@ -35,6 +88,7 @@ export default function AdminPartners({ partners }: Props) {
                     deleteUrl={(partner) => `/admin/partners/${partner.id}`}
                     itemTitle={(partner) => partner.name}
                     createButtonLabel="Tambah Mitra"
+                    tableColumns={tableColumns}
                     renderItem={(partner) => (
                         <div className="flex items-center gap-4">
                             {partner.logo_url ? (
