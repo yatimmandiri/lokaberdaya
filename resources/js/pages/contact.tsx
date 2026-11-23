@@ -87,10 +87,6 @@ export default function Contact() {
                 <div className="container mx-auto px-6 md:px-12">
                     <div className="grid grid-cols-1 items-end gap-8 md:grid-cols-12">
                         <div className="md:col-span-8">
-                            <div className="mb-4 flex items-center gap-3 text-[11px] font-bold tracking-[0.3em] text-[#9c8e4d] uppercase">
-                                <span className="h-px w-8 bg-[#9c8e4d]" />
-                                Hubungi Kami
-                            </div>
                             <h1 className="text-[clamp(2.25rem,5vw,4rem)] leading-[1.02] font-bold tracking-tight text-[#4b552a]">
                                 Mari
                                 <span className="text-[#9c8e4d] italic">
@@ -132,9 +128,6 @@ export default function Contact() {
                             <h2 className="text-lg font-bold text-gray-900">
                                 Kontak Langsung
                             </h2>
-                            <span className="font-mono text-[11px] tracking-widest text-gray-400 uppercase">
-                                01 — Direct
-                            </span>
                         </div>
 
                         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
@@ -270,9 +263,6 @@ export default function Contact() {
                             <h2 className="text-lg font-bold text-gray-900">
                                 Kirim Pesan
                             </h2>
-                            <span className="font-mono text-[11px] tracking-widest text-gray-400 uppercase">
-                                02 — Form
-                            </span>
                         </div>
 
                         <div className="rounded-2xl border border-gray-200 bg-white p-6 md:p-10">

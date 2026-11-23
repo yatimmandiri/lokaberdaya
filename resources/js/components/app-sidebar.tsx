@@ -13,6 +13,7 @@ import {
     Settings,
     Sprout,
     Tags,
+    Users,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -62,6 +63,7 @@ const contactNavItems: NavItem[] = [
 
 const settingsNavItems: NavItem[] = [
     { title: 'Pengaturan Situs', href: '/admin/settings', icon: Settings },
+    { title: 'Kelola Admin', href: '/admin/admins', icon: Users },
 ];
 
 const footerNavItems: NavItem[] = [

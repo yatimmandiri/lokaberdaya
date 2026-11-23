@@ -33,18 +33,6 @@ class User extends Authenticatable implements MustVerifyEmail
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
 
-    protected $appends = ['is_admin'];
-
-    public function isAdmin(): bool
-    {
-        return $this->role === 'admin';
-    }
-
-    public function getIsAdminAttribute(): bool
-    {
-        return $this->isAdmin();
-    }
-
     /**
      * Get the attributes that should be cast.
      *

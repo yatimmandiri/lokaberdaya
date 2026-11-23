@@ -324,20 +324,6 @@ export default function Landing({
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(75,85,42,0.35),transparent_60%)]" />
 
                 <div className="relative z-10 container mx-auto flex h-full flex-col justify-end px-6 pb-20 md:px-12 md:pb-28">
-                    <div
-                        className="mb-6 flex items-center gap-3 text-[11px] font-semibold tracking-[0.3em] text-[#f7ffda]/80 uppercase"
-                        style={{ animation: 'fadeUp .8s ease both' }}
-                    >
-                        <span
-                            className="h-px w-10 origin-left bg-[#f7ffda]"
-                            style={{
-                                animation:
-                                    'drawLine 1s .2s cubic-bezier(.22,.61,.36,1) both',
-                            }}
-                        />
-                        Pemberdayaan Berkelanjutan
-                    </div>
-
                     <h1 className="max-w-4xl text-[clamp(2rem,5.5vw,4.5rem)] leading-[1.02] font-bold text-white">
                         <SplitText
                             text={site.hero_title ?? 'Tumbuhkan Kesejahteraan'}
@@ -414,11 +400,6 @@ export default function Landing({
                                     )}
                                 </button>
                             ))}
-                        </div>
-                        <div className="hidden items-center gap-2 font-mono text-xs text-white/50 md:flex">
-                            <span className="text-white">0{idx + 1}</span>
-                            <span>/</span>
-                            <span>0{images.length}</span>
                         </div>
                     </div>
                 </div>

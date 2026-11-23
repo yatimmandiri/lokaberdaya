@@ -158,22 +158,15 @@ export default function Navbar() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        {user ? (
+                        {user && (
                             <>
-                                {user.is_admin && (
-                                    <Link
-                                        href="/admin"
-                                        className="flex items-center gap-2 rounded-md bg-[#f7ffda] px-4 py-2 text-sm font-bold text-[#4b552a] shadow-sm transition hover:bg-white"
-                                    >
-                                        <LayoutDashboard size={16} />
-                                        Dashboard
-                                    </Link>
-                                )}
-                                {!user.is_admin && (
-                                    <span className="text-sm text-[#f7ffda]/80">
-                                        Halo, {user.name.split(' ')[0]}
-                                    </span>
-                                )}
+                                <Link
+                                    href="/admin"
+                                    className="flex items-center gap-2 rounded-md bg-[#f7ffda] px-4 py-2 text-sm font-bold text-[#4b552a] shadow-sm transition hover:bg-white"
+                                >
+                                    <LayoutDashboard size={16} />
+                                    Dashboard
+                                </Link>
                                 <button
                                     type="button"
                                     onClick={handleLogout}
@@ -182,10 +175,6 @@ export default function Navbar() {
                                     <LogOut size={16} />
                                     Keluar
                                 </button>
-                            </>
-                        ) : (
-                            <>
-                                
                             </>
                         )}
                     </div>
@@ -274,47 +263,26 @@ export default function Navbar() {
                         Hubungi Kami
                     </Link>
 
-                    <div className="flex items-center gap-3 pt-3 pb-2">
-                        {user ? (
-                            <>
-                                {user.is_admin && (
-                                    <Link
-                                        href="/admin"
-                                        onClick={closeMobile}
-                                        className="flex flex-1 items-center justify-center gap-2 rounded-md bg-[#f7ffda] py-2 font-bold text-[#4b552a] transition hover:bg-white"
-                                    >
-                                        <LayoutDashboard size={16} />
-                                        Dashboard
-                                    </Link>
-                                )}
-                                <button
-                                    type="button"
-                                    onClick={handleLogout}
-                                    className="flex flex-1 items-center justify-center gap-2 rounded-md border border-white/30 py-2 font-medium text-white transition hover:bg-white/10"
-                                >
-                                    <LogOut size={16} />
-                                    Keluar
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <Link
-                                    href="/login"
-                                    onClick={closeMobile}
-                                    className="flex-1 rounded-md border border-white/30 py-2 text-center font-medium text-white transition hover:bg-white/10"
-                                >
-                                    Log in
-                                </Link>
-                                <Link
-                                    href="/register"
-                                    onClick={closeMobile}
-                                    className="flex-1 rounded-md bg-[#f7ffda] py-2 text-center font-bold text-[#4b552a] transition hover:bg-white"
-                                >
-                                    Register
-                                </Link>
-                            </>
-                        )}
-                    </div>
+                    {user && (
+                        <div className="flex items-center gap-3 pt-3 pb-2">
+                            <Link
+                                href="/admin"
+                                onClick={closeMobile}
+                                className="flex flex-1 items-center justify-center gap-2 rounded-md bg-[#f7ffda] py-2 font-bold text-[#4b552a] transition hover:bg-white"
+                            >
+                                <LayoutDashboard size={16} />
+                                Dashboard
+                            </Link>
+                            <button
+                                type="button"
+                                onClick={handleLogout}
+                                className="flex flex-1 items-center justify-center gap-2 rounded-md border border-white/30 py-2 font-medium text-white transition hover:bg-white/10"
+                            >
+                                <LogOut size={16} />
+                                Keluar
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </nav>

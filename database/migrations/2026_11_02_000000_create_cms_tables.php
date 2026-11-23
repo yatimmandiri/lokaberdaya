@@ -11,10 +11,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('role')->default('user')->after('email')->index();
-        });
-
         Schema::create('site_settings', function (Blueprint $table) {
             $table->id();
             $table->string('key')->unique();
@@ -179,9 +175,5 @@ return new class extends Migration
         Schema::dropIfExists('programs');
         Schema::dropIfExists('hero_slides');
         Schema::dropIfExists('site_settings');
-
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('role');
-        });
     }
 };

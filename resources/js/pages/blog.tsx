@@ -134,10 +134,6 @@ export default function Blog({ posts, categories }: Props) {
                 <div className="container mx-auto px-6 md:px-12">
                     <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
                         <div>
-                            <div className="mb-4 flex items-center gap-3 text-[11px] font-bold tracking-[0.3em] text-[#9c8e4d] uppercase">
-                                <span className="h-px w-8 bg-[#9c8e4d]" />
-                                Kabar & Publikasi
-                            </div>
                             <h1 className="text-[clamp(2.25rem,5vw,4rem)] leading-[1.02] font-bold tracking-tight text-[#4b552a]">
                                 Cerita dari
                                 <br />

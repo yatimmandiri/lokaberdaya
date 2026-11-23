@@ -182,21 +182,6 @@ export default function About({ coreValues, storyParagraphs }: Props) {
                     <div className="grid grid-cols-1 items-end gap-12 md:grid-cols-12">
                         {/* Text column */}
                         <div className="md:col-span-7">
-                            <div
-                                className="mb-8 inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.3em] text-[#4b552a]/80 uppercase"
-                                style={{ animation: 'fadeUp .7s ease both' }}
-                            >
-                                <span
-                                    className="h-px w-10 origin-left bg-[#4b552a]"
-                                    style={{
-                                        animation:
-                                            'drawLine 1s .2s cubic-bezier(.22,.61,.36,1) both',
-                                    }}
-                                />
-                                {site.about_page_badge ??
-                                    'Lebih dari 30 Tahun Berbakti'}
-                            </div>
-
                             <h1 className="mb-8 text-[clamp(2.25rem,5.5vw,4.75rem)] leading-[1.02] font-bold tracking-tight text-[#4b552a]">
                                 <SplitWords
                                     text={
@@ -294,13 +279,8 @@ export default function About({ coreValues, storyParagraphs }: Props) {
                         {/* Sticky side label */}
                         <div className="md:col-span-3">
                             <div className="sticky top-28">
-                                <div className="mb-2 text-[11px] font-bold tracking-[0.25em] text-[#9c8e4d] uppercase">
-                                    01 — Cerita
-                                </div>
                                 <h2 className="text-2xl leading-tight font-bold text-gray-900">
-                                    Perjalanan
-                                    <br />
-                                    Kami
+                                    Perjalanan Kami
                                 </h2>
                                 {/* Progress dots */}
                                 <div className="mt-8 hidden flex-col gap-2 md:flex">
@@ -405,9 +385,6 @@ export default function About({ coreValues, storyParagraphs }: Props) {
 
                 <div className="relative z-10 container mx-auto px-6 md:px-12">
                     <div className="mb-16 max-w-2xl">
-                        <div className="mb-3 text-[11px] font-bold tracking-[0.25em] text-[#9c8e4d] uppercase">
-                            02 — Nilai
-                        </div>
                         <h2 className="text-3xl leading-tight font-bold text-[#4b552a] md:text-[2.75rem]">
                             Nilai Perjuangan Kami
                         </h2>
@@ -445,16 +422,11 @@ export default function About({ coreValues, storyParagraphs }: Props) {
                                                 />
                                             </div>
                                             <div className="flex-1">
-                                                <div className="mb-1 flex items-baseline justify-between gap-4">
+                                                <div className="mb-1">
                                                     <h3 className="value-title text-lg font-bold text-gray-900 transition-colors">
                                                         {value.title}
                                                     </h3>
-                                                    <span className="font-mono text-[11px] text-[#4b552a]/40">
-                                                        {String(i + 1).padStart(
-                                                            2,
-                                                            '0',
-                                                        )}
-                                                    </span>
+
                                                 </div>
                                                 <p className="text-sm leading-relaxed text-gray-600">
                                                     {value.description}

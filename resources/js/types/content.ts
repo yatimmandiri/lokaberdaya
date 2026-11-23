@@ -1,4 +1,9 @@
-export type UserRole = 'user' | 'admin';
+export type AdminUser = {
+    id: number;
+    name: string;
+    email: string;
+    created_at: string;
+};
 
 export type SiteSettings = Record<string, string | null>;
 

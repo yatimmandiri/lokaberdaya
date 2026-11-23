@@ -10,7 +10,15 @@ import { Label } from '@/components/ui/label';
 export type CrudField = {
     name: string;
     label: string;
-    type?: 'text' | 'textarea' | 'number' | 'checkbox' | 'file' | 'select';
+    type?:
+        | 'text'
+        | 'textarea'
+        | 'number'
+        | 'checkbox'
+        | 'file'
+        | 'select'
+        | 'email'
+        | 'password';
     placeholder?: string;
     required?: boolean;
     options?: { value: string; label: string }[];
@@ -58,6 +66,14 @@ function initialData(fields: CrudField[], item?: Item): Item {
 
         return data;
     }, {});
+}
+
+function inputType(type: CrudField['type']): string {
+    if (type === 'email' || type === 'password') {
+        return type;
+    }
+
+    return type === 'number' ? 'number' : 'text';
 }
 
 function FieldInput({
@@ -131,10 +147,13 @@ function FieldInput({
             ) : (
                 <Input
                     id={field.name}
-                    type={field.type === 'number' ? 'number' : 'text'}
+                    type={inputType(field.type)}
                     value={value ?? ''}
                     onChange={(event) => onChange(event.target.value)}
                     placeholder={field.placeholder}
+                    autoComplete={
+                        field.type === 'password' ? 'new-password' : undefined
+                    }
                     className="bg-white"
                 />
             )}

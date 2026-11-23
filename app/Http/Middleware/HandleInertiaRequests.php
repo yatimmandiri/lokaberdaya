@@ -55,7 +55,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => $user,
             ],
             'site' => $settings,
-            'unreadMessages' => $user?->isAdmin()
+            'unreadMessages' => $user
                 ? ContactMessage::query()->where('is_read', false)->count()
                 : 0,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',

@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as SocialiteUser;
 
@@ -16,6 +18,16 @@ function googleUser(string $email, string $name = 'Google User'): SocialiteUser
     ]);
 }
 
+function pendingGoogleRegistration(string $email = 'google.user@example.com', string $name = 'Google User'): array
+{
+    return [
+        'auth.google.pending' => [
+            'name' => $name,
+            'email' => $email,
+        ],
+    ];
+}
+
 test('users are redirected to google to authenticate', function () {
     Socialite::fake('google');
 
@@ -23,42 +35,87 @@ test('users are redirected to google to authenticate', function () {
         ->assertRedirect('https://socialite.fake/google/authorize');
 });
 
-test('users can authenticate with google and are created automatically', function () {
+test('unregistered google accounts are redirected to the create password page', function () {
     Socialite::fake('google', googleUser('google.user@example.com'));
 
     $this->get(route('auth.google.callback'))
-        ->assertRedirect(route('home', absolute: false));
+        ->assertRedirect(route('auth.google.password.create'))
+        ->assertSessionHas('auth.google.pending', [
+            'name' => 'Google User',
+            'email' => 'google.user@example.com',
+        ]);
+
+    expect(User::where('email', 'google.user@example.com')->exists())->toBeFalse();
+
+    $this->assertGuest();
+
+    $this->get(route('auth.google.password.create'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('auth/create-password')
+            ->where('name', 'Google User')
+            ->where('email', 'google.user@example.com')
+            ->has('passwordRules'));
+});
+
+test('the create password page requires a pending google registration', function () {
+    $this->get(route('auth.google.password.create'))
+        ->assertRedirect(route('login'))
+        ->assertSessionHasErrors('google');
+});
+
+test('unregistered google accounts can create a password and are signed in', function () {
+    $this->withSession(pendingGoogleRegistration())
+        ->post(route('auth.google.password.store'), [
+            'password' => 'Password123!',
+            'password_confirmation' => 'Password123!',
+        ])
+        ->assertRedirect('/admin')
+        ->assertSessionMissing('auth.google.pending');
 
     $user = User::where('email', 'google.user@example.com')->first();
 
-    expect($user)
-        ->not->toBeNull()
+    expect($user)->not->toBeNull()
         ->and($user->name)->toBe('Google User')
-        ->and($user->hasVerifiedEmail())->toBeTrue();
+        ->and($user->role)->toBe('admin')
+        ->and($user->hasVerifiedEmail())->toBeTrue()
+        ->and(Hash::check('Password123!', $user->password))->toBeTrue();
 
     $this->assertAuthenticatedAs($user);
 });
 
-test('existing users can authenticate with google', function () {
+test('creating a password requires a valid confirmed password', function () {
+    $this->withSession(pendingGoogleRegistration())
+        ->post(route('auth.google.password.store'), [
+            'password' => 'short',
+            'password_confirmation' => 'different',
+        ])
+        ->assertSessionHasErrors('password');
+
+    expect(User::where('email', 'google.user@example.com')->exists())->toBeFalse();
+
+    $this->assertGuest();
+});
+
+test('creating a password requires a pending google registration', function () {
+    $this->post(route('auth.google.password.store'), [
+        'password' => 'Password123!',
+        'password_confirmation' => 'Password123!',
+    ])
+        ->assertRedirect(route('login'))
+        ->assertSessionHasErrors('google');
+
+    $this->assertGuest();
+});
+
+test('existing admins can authenticate with google', function () {
     $user = User::factory()->unverified()->create();
 
     Socialite::fake('google', googleUser($user->email));
 
     $this->get(route('auth.google.callback'))
-        ->assertRedirect(route('home', absolute: false));
+        ->assertRedirect('/admin');
 
     expect($user->refresh()->hasVerifiedEmail())->toBeTrue();
-
-    $this->assertAuthenticatedAs($user);
-});
-
-test('admin users are redirected to the admin dashboard after google sign in', function () {
-    $user = User::factory()->admin()->create();
-
-    Socialite::fake('google', googleUser($user->email));
-
-    $this->get(route('auth.google.callback'))
-        ->assertRedirect('/admin');
 
     $this->assertAuthenticatedAs($user);
 });

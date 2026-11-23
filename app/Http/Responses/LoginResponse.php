@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 class LoginResponse implements LoginResponseContract
 {
     /**
-     * Redirect the authenticated user based on their role.
+     * Redirect the authenticated administrator to the admin dashboard.
      *
      * @param  Request  $request
      * @return Response
@@ -20,8 +20,6 @@ class LoginResponse implements LoginResponseContract
             return response()->json(['two_factor' => false]);
         }
 
-        $destination = $request->user()?->isAdmin() ? '/admin' : '/';
-
-        return redirect()->intended($destination);
+        return redirect()->intended('/admin');
     }
 }

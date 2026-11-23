@@ -8,6 +8,7 @@ use App\Models\Partner;
 use App\Models\Program;
 use App\Models\SiteSetting;
 use App\Models\Testimonial;
+use App\Support\LandingStats;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -32,7 +33,7 @@ class PageController extends Controller
                 ->where('is_active', true)
                 ->orderBy('sort_order')
                 ->get(),
-            'landingStats' => $this->landingStats(),
+            'landingStats' => LandingStats::get(),
         ]);
     }
 
@@ -49,25 +50,6 @@ class PageController extends Controller
     public function contact(): Response
     {
         return Inertia::render('contact');
-    }
-
-    /**
-     * @return array<int, array{value: string, label: string, icon: string}>
-     */
-    private function landingStats(): array
-    {
-        $settings = SiteSetting::allValues();
-        $icons = ['users', 'leaf', 'building'];
-
-        return collect(range(1, 3))
-            ->map(fn (int $index): array => [
-                'value' => $settings["landing_stat_{$index}_value"] ?? '',
-                'label' => $settings["landing_stat_{$index}_label"] ?? '',
-                'icon' => $settings["landing_stat_{$index}_icon"] ?? $icons[$index - 1],
-            ])
-            ->filter(fn (array $stat): bool => $stat['value'] !== '' || $stat['label'] !== '')
-            ->values()
-            ->all();
     }
 
     /**

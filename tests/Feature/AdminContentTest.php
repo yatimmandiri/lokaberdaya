@@ -21,7 +21,7 @@ beforeEach(function () {
     Storage::fake('public');
     $this->seed(ContentSeeder::class);
 
-    $this->actingAs(User::factory()->admin()->create());
+    $this->actingAs(User::factory()->create());
 });
 
 test('admin can update site settings', function () {
@@ -327,13 +327,14 @@ test('admin can toggle and delete a contact message', function () {
     $this->assertDatabaseMissing('contact_messages', ['id' => $message->id]);
 });
 
-test('regular users cannot mutate admin content', function () {
-    $this->actingAs(User::factory()->create());
+test('guests cannot mutate admin content', function () {
+    auth()->logout();
+    $this->app['auth']->forgetGuards();
 
     $this->post(route('admin.core-values.store'), [
         'title' => 'Tidak Boleh',
         'description' => 'Tidak boleh',
-    ])->assertForbidden();
+    ])->assertRedirect(route('login'));
 
     $this->assertDatabaseMissing('core_values', ['title' => 'Tidak Boleh']);
 });

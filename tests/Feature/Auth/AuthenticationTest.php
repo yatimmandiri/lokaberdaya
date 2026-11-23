@@ -11,7 +11,7 @@ test('login screen can be rendered', function () {
     $response->assertOk();
 });
 
-test('users can authenticate using the login screen', function () {
+test('admins can authenticate using the login screen', function () {
     $user = User::factory()->create();
 
     $response = $this->post(route('login.store'), [
@@ -20,7 +20,13 @@ test('users can authenticate using the login screen', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('home', absolute: false));
+    $response->assertRedirect('/admin');
+});
+
+test('the login screen is only available at the admin login url', function () {
+    $this->get('/login')->assertNotFound();
+
+    $this->get('/login/admin')->assertOk();
 });
 
 test('the seeded admin can log in and reach the admin dashboard', function () {

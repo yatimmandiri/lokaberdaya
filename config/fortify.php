@@ -73,7 +73,7 @@ return [
     |
     */
 
-    'home' => '/dashboard',
+    'home' => '/admin',
 
     /*
     |--------------------------------------------------------------------------
@@ -89,6 +89,20 @@ return [
     'prefix' => '',
 
     'domain' => null,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Fortify Route Paths
+    |--------------------------------------------------------------------------
+    |
+    | The administrator login screen lives at /login/admin. Registration is
+    | disabled, so only existing administrators can sign in.
+    |
+    */
+
+    'paths' => [
+        'login' => 'login/admin',
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -144,7 +158,6 @@ return [
     */
 
     'features' => [
-        Features::registration(),
         Features::resetPasswords(),
         Features::emailVerification(),
         Features::twoFactorAuthentication([

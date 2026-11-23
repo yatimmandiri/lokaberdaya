@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AboutPageController;
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
 use App\Http\Controllers\Admin\CoreValueController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -27,6 +28,10 @@ Route::post('/kontak', [ContactMessageController::class, 'store'])->name('kontak
 
 Route::get('/auth/google/redirect', [GoogleController::class, 'redirect'])->name('auth.google.redirect');
 Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('auth.google.callback');
+Route::get('/login/admin/buat-password', [GoogleController::class, 'showCreatePassword'])->name('auth.google.password.create');
+Route::post('/login/admin/buat-password', [GoogleController::class, 'storeCreatePassword'])
+    ->middleware('throttle:6,1')
+    ->name('auth.google.password.store');
 
 Route::get('/program/agriculture', [ProgramController::class, 'agriculture'])->name('agriculture');
 Route::get('/program/agroforestry', [ProgramController::class, 'agroforestry'])->name('agroforestry');
@@ -37,15 +42,12 @@ Route::get('/program/{program}/{city}', [ProgramController::class, 'activity'])-
 Route::get('/blog', [BlogController::class, 'index'])->name('blog');
 
 Route::get('/dashboard', function () {
-    if (auth()->user()?->isAdmin()) {
-        return redirect()->route('admin.dashboard');
-    }
-
-    return redirect()->route('home');
+    return redirect()->route('admin.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');
+    Route::resource('admins', AdminUserController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
     Route::get('/about', [AboutPageController::class, 'edit'])->name('about.edit');
